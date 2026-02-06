@@ -37,7 +37,7 @@
 
         <div class="space-y-3">
             <textarea id="prompt" rows="4" 
-                placeholder="Esempio: Una landing page per un personal trainer con calcolatore di calorie e stile neon dark..."
+                placeholder="Esempio: Una pagina HTML con un bottone rosso che dice 'Buongiorno mondo' e sfondo nero"
                 class="w-full p-4 rounded-xl border border-slate-300 shadow-inner focus:ring-2 focus:ring-purple-500 outline-none text-lg"></textarea>
             
             <button id="genBtn"
@@ -77,9 +77,8 @@
     <script>
         let generatedCode = "";
 
-        // Funzione principale con debug e gestione errori completa
         async function generateCode() {
-            console.log("Bottone cliccato - generateCode avviata");
+            console.log("generateCode avviata");
 
             const key = document.getElementById('apiKey').value.trim();
             const promptText = document.getElementById('prompt').value.trim();
@@ -97,9 +96,9 @@
             console.log("Loading avviato");
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${key}`;}`;
-                
-                console.log("Chiamata API a:", url);
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+
+                console.log("Chiamata API:", url);
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -107,13 +106,13 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Genera un file HTML unico (con CSS Tailwind e JS incluso) per questa idea: ${promptText}. Rispondi SOLO col codice HTML completo, senza spiegazioni, markdown o altro.`
+                                text: `Genera un file HTML unico per questa idea: ${promptText}. Rispondi SOLO col codice HTML completo, senza altro testo.`
                             }]
                         }]
                     })
                 });
 
-                console.log("Risposta status:", response.status);
+                console.log("Status risposta:", response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -124,17 +123,15 @@
                 console.log("Risposta API completa:", data);
 
                 if (!data || !data.candidates || data.candidates.length === 0) {
-                    throw new Error("Gemini non ha restituito candidati validi");
+                    throw new Error("Nessun candidato restituito");
                 }
 
                 let rawCode = data.candidates[0].content.parts[0].text || "";
                 generatedCode = rawCode.replace(/```html|```/g, "").trim();
 
-                const iframe = document.getElementById('preview');
-                iframe.srcdoc = generatedCode;
-                
+                document.getElementById('preview').srcdoc = generatedCode;
                 document.getElementById('resultSection').classList.remove('hidden');
-                console.log("Preview aggiornata con successo");
+                console.log("Preview aggiornata");
             } catch (error) {
                 console.error("Errore dettagliato:", error);
                 alert("Errore durante la generazione: " + error.message);
@@ -145,7 +142,6 @@
             }
         }
 
-        // Aggiungi listener per click e touch (mobile)
         const genBtn = document.getElementById('genBtn');
         genBtn.addEventListener('click', generateCode);
         genBtn.addEventListener('touchstart', (e) => {
@@ -158,13 +154,9 @@
             alert("Codice copiato!");
         }
 
-        // Service Worker per PWA
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrato', reg))
-                    .catch(err => console.error('Service Worker errore', err));
-            });
+            navigator.serviceWorker.register('sw.js')
+                .catch(err => console.log('SW error', err));
         }
     </script>
 </body>
