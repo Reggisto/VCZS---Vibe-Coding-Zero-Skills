@@ -2,73 +2,67 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VibeBuilder - App Generator</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#473DC0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .vibe-gradient { background: linear-gradient(90deg, #6739C6 0%, #473DC0 50%, #1E3DA1 100%); }
-        #preview-container iframe { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 8px; }
+        #preview-container iframe { width: 100%; height: 500px; border: none; border-radius: 12px; }
+        /* Fix per scrolling su mobile */
+        body { touch-action: manipulation; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans min-h-screen">
+<body class="bg-slate-50 font-sans min-h-screen pb-10">
 
-    <header class="vibe-gradient text-white p-6 shadow-lg">
-        <h1 class="text-3xl font-bold tracking-tight">VibeBuilder 🚀</h1>
-        <p class="text-sm opacity-90">App full-stack dallo smartphone, zero sbatti.</p>
+    <header class="vibe-gradient text-white p-6 shadow-lg mb-6">
+        <h1 class="text-3xl font-bold tracking-tight text-center text-white">VibeBuilder 🚀</h1>
+        <p class="text-xs text-center opacity-80 mt-1 uppercase tracking-widest">Mobile App Creator</p>
     </header>
 
-    <main class="p-4 max-w-2xl mx-auto space-y-6">
+    <main class="px-4 max-w-2xl mx-auto space-y-6">
         
-        <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="font-bold text-slate-800 mb-2">Come funziona:</h2>
-            <ul class="text-sm text-slate-600 space-y-1">
-                <li>1. Incolla la tua <strong>Gemini API Key</strong></li>
-                <li>2. Descrivi la "vibe" della tua app</li>
-                <li>3. Clicca genera e testa subito</li>
-            </ul>
-        </section>
-
-        <div class="space-y-2">
-            <input type="password" id="apiKey" placeholder="Inserisci Gemini API Key..." 
-                class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="Incolla la tua chiave qui..." 
+                class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 outline-none transition-all">
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-4">
             <textarea id="prompt" rows="4" 
-                placeholder="Esempio: Una pagina HTML con un bottone rosso che dice 'Buongiorno mondo' e sfondo nero"
-                class="w-full p-4 rounded-xl border border-slate-300 shadow-inner focus:ring-2 focus:ring-purple-500 outline-none text-lg"></textarea>
+                placeholder="Descrivi l'app... es: 'Un timer per allenamento con colori neon'"
+                class="w-full p-4 rounded-2xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-purple-500 outline-none text-lg"></textarea>
             
             <button id="genBtn"
-                class="w-full vibe-gradient text-white font-bold py-4 rounded-xl shadow-xl active:scale-95 transition-transform">
-                GENERA CODICE
+                class="w-full vibe-gradient text-white font-bold py-5 rounded-2xl shadow-xl active:scale-95 transition-all text-lg uppercase tracking-wider">
+                Crea la mia App
             </button>
         </div>
 
-        <div id="loading" class="hidden text-center py-4">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full"></div>
-            <p class="text-slate-500 mt-2">Gemini sta cucinando...</p>
+        <div id="loading" class="hidden flex flex-col items-center justify-center py-8">
+            <div class="animate-spin w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full"></div>
+            <p class="text-slate-500 mt-4 font-medium italic">Gemini sta scrivendo il codice...</p>
         </div>
 
-        <section id="resultSection" class="hidden space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg">Preview App:</h3>
-                <button onclick="copyCode()" class="text-xs bg-slate-200 px-3 py-1 rounded">Copia Codice</button>
+        <section id="resultSection" class="hidden space-y-4 animate-in fade-in duration-500">
+            <div class="flex justify-between items-center px-1">
+                <h3 class="font-bold text-slate-700">Anteprima Live:</h3>
+                <button onclick="copyCode()" class="text-sm font-bold text-purple-600 bg-purple-50 px-4 py-2 rounded-full active:bg-purple-100">
+                    Copia Codice
+                </button>
             </div>
             
-            <div id="preview-container" class="bg-white rounded-lg overflow-hidden shadow-md">
+            <div id="preview-container" class="bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <iframe id="preview"></iframe>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <a href="https://vercel.com/new" target="_blank" 
-                    class="bg-black text-white text-center py-3 rounded-lg font-medium text-sm">
+            <div class="grid grid-cols-2 gap-3 pt-4">
+                <a href="https://vercel.com/new" target="_blank" class="flex items-center justify-center bg-black text-white py-4 rounded-2xl font-bold text-sm">
                     Deploy su Vercel
                 </a>
-                <a href="https://replit.com/languages/html" target="_blank" 
-                    class="bg-blue-600 text-white text-center py-3 rounded-lg font-medium text-sm">
-                    Apri su Replit
+                <a href="https://replit.com/languages/html" target="_blank" class="flex items-center justify-center bg-slate-200 text-slate-800 py-4 rounded-2xl font-bold text-sm">
+                    Modifica su Replit
                 </a>
             </div>
         </section>
@@ -78,27 +72,26 @@
         let generatedCode = "";
 
         async function generateCode() {
-            console.log("generateCode avviata");
-
             const key = document.getElementById('apiKey').value.trim();
             const promptText = document.getElementById('prompt').value.trim();
             const btn = document.getElementById('genBtn');
             const loader = document.getElementById('loading');
+            const resultSection = document.getElementById('resultSection');
 
             if (!key || !promptText) {
-                alert("Manca Key o Prompt!");
-                console.log("Manca key o prompt");
+                alert("Ehi! Devi inserire sia la chiave che l'idea dell'app.");
                 return;
             }
 
+            // UI Feedback
             btn.disabled = true;
+            btn.style.opacity = "0.5";
             loader.classList.remove('hidden');
-            console.log("Loading avviato");
+            resultSection.classList.add('hidden');
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
-
-                console.log("Chiamata API:", url);
+                // Usiamo v1beta che è più permissivo per le API Key gratuite
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -106,57 +99,68 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Genera un file HTML unico per questa idea: ${promptText}. Rispondi SOLO col codice HTML completo, senza altro testo.`
+                                text: `Agisci come esperto web developer. Genera un singolo file HTML5 completo (con Tailwind CSS via CDN e JavaScript moderno) per questa richiesta: "${promptText}". 
+                                Restituisci esclusivamente il codice HTML. Non aggiungere commenti, non scrivere "Ecco il codice", non usare blocchi di testo prima o dopo.`
                             }]
-                        }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 4096,
+                        }
                     })
                 });
 
-                console.log("Status risposta:", response.status);
-
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Errore API: ${response.status} - ${errorText}`);
+                    const err = await response.json();
+                    throw new Error(err.error?.message || "Errore sconosciuto dell'API");
                 }
 
                 const data = await response.json();
-                console.log("Risposta API completa:", data);
-
-                if (!data || !data.candidates || data.candidates.length === 0) {
-                    throw new Error("Nessun candidato restituito");
+                
+                if (!data.candidates || data.candidates.length === 0) {
+                    throw new Error("Gemini non ha generato alcun risultato.");
                 }
 
-                let rawCode = data.candidates[0].content.parts[0].text || "";
-                generatedCode = rawCode.replace(/```html|```/g, "").trim();
+                let rawCode = data.candidates[0].content.parts[0].text;
+                
+                // Pulizia potente del codice (rimuove i tag ```html e simili)
+                generatedCode = rawCode.replace(/```html/gi, "")
+                                       .replace(/```/g, "")
+                                       .trim();
 
-                document.getElementById('preview').srcdoc = generatedCode;
-                document.getElementById('resultSection').classList.remove('hidden');
-                console.log("Preview aggiornata");
+                // Inserimento nell'iframe
+                const iframe = document.getElementById('preview');
+                const blob = new Blob([generatedCode], { type: 'text/html' });
+                iframe.src = URL.createObjectURL(blob);
+
+                resultSection.classList.remove('hidden');
+                
+                // Scroll automatico alla preview
+                setTimeout(() => {
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                }, 300);
+
             } catch (error) {
-                console.error("Errore dettagliato:", error);
-                alert("Errore durante la generazione: " + error.message);
+                console.error(error);
+                alert("Errore: " + error.message);
             } finally {
                 btn.disabled = false;
+                btn.style.opacity = "1";
                 loader.classList.add('hidden');
-                console.log("Loading finito");
             }
         }
 
-        const genBtn = document.getElementById('genBtn');
-        genBtn.addEventListener('click', generateCode);
-        genBtn.addEventListener('touchstart', (e) => {
+        // Listener ottimizzato per Mobile
+        document.getElementById('genBtn').addEventListener('click', (e) => {
             e.preventDefault();
             generateCode();
         });
 
         function copyCode() {
             navigator.clipboard.writeText(generatedCode);
-            alert("Codice copiato!");
-        }
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .catch(err => console.log('SW error', err));
+            alert("Codice copiato! Ora puoi incollarlo su un file o su Vercel.");
         }
     </script>
 </body>
