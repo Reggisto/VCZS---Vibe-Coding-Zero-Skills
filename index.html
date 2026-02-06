@@ -1,74 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VibeBuilder v3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .vibe-gradient { background: linear-gradient(90deg, #6739C6 0%, #473DC0 50%, #1E3DA1 100%); }
+        iframe { width: 100%; height: 500px; border: none; background: white; border-radius: 15px; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen pb-10">
+
+    <header class="vibe-gradient text-white p-6 shadow-md mb-6">
+        <h1 class="text-2xl font-bold text-center">VibeBuilder 🚀</h1>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 space-y-6">
+        
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="Incolla API Key..." 
+                class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200 outline-none focus:border-purple-500">
+        </div>
+
+        <div class="space-y-3">
+            <textarea id="prompt" rows="4" placeholder="Cosa vuoi creare?"
+                class="w-full p-4 rounded-xl border border-slate-200 shadow-sm outline-none focus:border-purple-500 text-lg"></textarea>
+            
+            <button onclick="startGenerazione()" id="mainBtn"
+                class="w-full vibe-gradient text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest">
+                Genera Ora
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center py-6">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full"></div>
+            <p class="text-slate-500 mt-2 font-medium">Lavorando per te...</p>
+        </div>
+
+        <section id="resultArea" class="hidden space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <h3 class="font-bold text-slate-700 uppercase text-xs">Anteprima App</h3>
+                <button onclick="copiaCodice()" class="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-2 rounded-lg">Copia</button>
+            </div>
+            <div class="shadow-2xl rounded-2xl overflow-hidden border-4 border-white">
+                <iframe id="previewFrame"></iframe>
+            </div>
+        </section>
+
+    </main>
+
     <script>
-        let lastGeneratedCode = "";
+        // Variabile globale per il codice
+        var codiceFinale = "";
 
-        async function runGeneration() {
-            const key = document.getElementById('apiKey').value.trim();
-            const promptInput = document.getElementById('prompt').value.trim();
-            const btn = document.getElementById('genBtn');
-            const loader = document.getElementById('loading');
-            const result = document.getElementById('resultSection');
+        async function startGenerazione() {
+            var k = document.getElementById('apiKey').value.trim();
+            var p = document.getElementById('prompt').value.trim();
+            var b = document.getElementById('mainBtn');
+            var l = document.getElementById('loading');
+            var r = document.getElementById('resultArea');
+            var f = document.getElementById('previewFrame');
 
-            if (!key || !promptInput) {
-                alert("Mancano dati!");
+            if (!k || !p) {
+                alert("Inserisci Key e Testo!");
                 return;
             }
 
-            btn.disabled = true;
-            btn.style.opacity = "0.5";
-            loader.classList.remove('hidden');
-            result.classList.add('hidden');
+            // UI feedback
+            b.disabled = true;
+            l.classList.remove('hidden');
+            r.classList.add('hidden');
 
             try {
-                // Endpoint aggiornato con la stringa modello specifica che risolve l'errore negli screenshot
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+                // Endpoint super-compatibile
+                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + k;
 
-                const response = await fetch(url, {
+                var res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Crea un file HTML5 singolo e completo (CSS Tailwind e JS inclusi) per questa idea: "${promptInput}". Rispondi ESCLUSIVAMENTE con il codice HTML puro, senza markdown (\`\`\`), senza spiegazioni e senza testo aggiuntivo.`
+                                text: "Genera un file HTML5 unico con CSS Tailwind e JS per questa idea: " + p + ". Restituisci solo codice puro."
                             }]
                         }]
                     })
                 });
 
-                const data = await response.json();
+                var data = await res.json();
 
-                if (!response.ok) {
-                    // Se l'errore persiste, mostriamo il messaggio esatto dell'API per capire se è un problema di permessi della Key
-                    throw new Error(data.error?.message || "Errore sconosciuto");
+                if (!res.ok) {
+                    throw new Error(data.error ? data.error.message : "Errore API");
                 }
 
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    let code = data.candidates[0].content.parts[0].text;
+                    var txt = data.candidates[0].content.parts[0].text;
+                    // Pulizia base
+                    codiceFinale = txt.replace(/```html/gi, "").replace(/```/g, "").trim();
                     
-                    // Pulizia aggressiva nel caso l'IA ignori l'istruzione e metta comunque i ```
-                    lastGeneratedCode = code.replace(/```html/gi, "").replace(/```/g, "").trim();
-
-                    const iframe = document.getElementById('preview');
-                    iframe.srcdoc = lastGeneratedCode;
-
-                    result.classList.remove('hidden');
-                    result.scrollIntoView({ behavior: 'smooth' });
+                    // Inserimento sicuro nell'iframe
+                    f.srcdoc = codiceFinale;
+                    r.classList.remove('hidden');
                 } else {
-                    throw new Error("L'API non ha restituito codice. Controlla i limiti della tua Key.");
+                    throw new Error("Nessuna risposta dal modello.");
                 }
 
-            } catch (err) {
-                alert("Errore Tecnico: " + err.message);
-                console.error(err);
+            } catch (e) {
+                alert("Errore: " + e.message);
+                console.error(e);
             } finally {
-                btn.disabled = false;
-                btn.style.opacity = "1";
-                loader.classList.add('hidden');
+                b.disabled = false;
+                l.classList.add('hidden');
             }
         }
 
-        function copyToClipboard() {
-            if (!lastGeneratedCode) return;
-            navigator.clipboard.writeText(lastGeneratedCode);
-            alert("Codice copiato!");
+        function copiaCodice() {
+            if (codiceFinale) {
+                navigator.clipboard.writeText(codiceFinale);
+                alert("Copiato!");
+            }
         }
     </script>
+</body>
+</html>
