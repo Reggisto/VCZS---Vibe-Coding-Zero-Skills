@@ -1,71 +1,3 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VibeBuilder 🚀</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .vibe-gradient { background: linear-gradient(90deg, #6739C6 0%, #473DC0 50%, #1E3DA1 100%); }
-        #preview-container iframe { width: 100%; height: 500px; border: none; }
-        body { touch-action: manipulation; }
-    </style>
-</head>
-<body class="bg-slate-50 font-sans min-h-screen">
-
-    <header class="vibe-gradient text-white p-6 shadow-lg">
-        <h1 class="text-2xl font-bold text-center">VibeBuilder 🚀</h1>
-        <p class="text-xs text-center opacity-80 uppercase tracking-widest mt-1">Zero Skills App Maker</p>
-    </header>
-
-    <main class="p-4 max-w-xl mx-auto space-y-6">
-        
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Gemini API Key</label>
-            <input type="password" id="apiKey" placeholder="Incolla qui la tua API Key..." 
-                class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-purple-500 transition-all">
-        </div>
-
-        <div class="space-y-3">
-            <textarea id="prompt" rows="4" 
-                placeholder="Cosa vuoi creare? Es: Un'app per gestire la lista della spesa con colori pastello..."
-                class="w-full p-4 rounded-2xl border border-slate-200 shadow-sm outline-none focus:ring-2 focus:ring-purple-500 text-lg"></textarea>
-            
-            <button id="genBtn" onclick="runGeneration()"
-                class="w-full vibe-gradient text-white font-bold py-5 rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest">
-                Genera App
-            </button>
-        </div>
-
-        <div id="loading" class="hidden flex flex-col items-center py-10">
-            <div class="animate-spin w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full"></div>
-            <p class="text-slate-500 mt-4 font-medium">Gemini sta programmando per te...</p>
-        </div>
-
-        <section id="resultSection" class="hidden space-y-4">
-            <div class="flex justify-between items-center px-1">
-                <h3 class="font-bold text-slate-700">Anteprima:</h3>
-                <button onclick="copyToClipboard()" class="text-sm font-bold text-purple-600 bg-purple-50 px-4 py-2 rounded-full">
-                    Copia Codice
-                </button>
-            </div>
-            
-            <div id="preview-container" class="bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                <iframe id="preview" srcdoc="<html><body></body></html>"></iframe>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-4">
-                <a href="https://vercel.com/new" target="_blank" class="flex items-center justify-center bg-black text-white py-4 rounded-2xl font-bold text-xs uppercase">
-                    Deploy Vercel
-                </a>
-                <a href="https://replit.com/languages/html" target="_blank" class="flex items-center justify-center bg-slate-200 text-slate-800 py-4 rounded-2xl font-bold text-xs uppercase">
-                    Edit Replit
-                </a>
-            </div>
-        </section>
-    </main>
-
     <script>
         let lastGeneratedCode = "";
 
@@ -81,15 +13,14 @@
                 return;
             }
 
-            // Reset UI
             btn.disabled = true;
             btn.style.opacity = "0.5";
             loader.classList.remove('hidden');
             result.classList.add('hidden');
 
             try {
-                // Endpoint STABILE v1 e modello corretto
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
+                // Endpoint aggiornato con la stringa modello specifica che risolve l'errore negli screenshot
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -97,7 +28,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Genera un file HTML5 singolo e completo (CSS Tailwind e JS inclusi) per questa idea: "${promptInput}". Rispondi esclusivamente col codice, senza markdown o commenti.`
+                                text: `Crea un file HTML5 singolo e completo (CSS Tailwind e JS inclusi) per questa idea: "${promptInput}". Rispondi ESCLUSIVAMENTE con il codice HTML puro, senza markdown (\`\`\`), senza spiegazioni e senza testo aggiuntivo.`
                             }]
                         }]
                     })
@@ -106,12 +37,14 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error?.message || "Errore API");
+                    // Se l'errore persiste, mostriamo il messaggio esatto dell'API per capire se è un problema di permessi della Key
+                    throw new Error(data.error?.message || "Errore sconosciuto");
                 }
 
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     let code = data.candidates[0].content.parts[0].text;
-                    // Pulizia blocchi markdown
+                    
+                    // Pulizia aggressiva nel caso l'IA ignori l'istruzione e metta comunque i ```
                     lastGeneratedCode = code.replace(/```html/gi, "").replace(/```/g, "").trim();
 
                     const iframe = document.getElementById('preview');
@@ -120,11 +53,11 @@
                     result.classList.remove('hidden');
                     result.scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    throw new Error("Nessun codice generato.");
+                    throw new Error("L'API non ha restituito codice. Controlla i limiti della tua Key.");
                 }
 
             } catch (err) {
-                alert("Errore: " + err.message);
+                alert("Errore Tecnico: " + err.message);
                 console.error(err);
             } finally {
                 btn.disabled = false;
@@ -134,9 +67,8 @@
         }
 
         function copyToClipboard() {
+            if (!lastGeneratedCode) return;
             navigator.clipboard.writeText(lastGeneratedCode);
-            alert("Codice copiato negli appunti!");
+            alert("Codice copiato!");
         }
     </script>
-</body>
-</html>
