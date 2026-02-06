@@ -40,7 +40,7 @@
                 placeholder="Esempio: Una landing page per un personal trainer con calcolatore di calorie e stile neon dark..."
                 class="w-full p-4 rounded-xl border border-slate-300 shadow-inner focus:ring-2 focus:ring-purple-500 outline-none text-lg"></textarea>
             
-            <button onclick="generateCode()" id="genBtn"
+            <button id="genBtn"
                 class="w-full vibe-gradient text-white font-bold py-4 rounded-xl shadow-xl active:scale-95 transition-transform">
                 GENERA CODICE
             </button>
@@ -77,7 +77,10 @@
     <script>
         let generatedCode = "";
 
+        // Funzione principale con debug e gestione errori completa
         async function generateCode() {
+            console.log("Bottone cliccato - generateCode avviata");
+
             const key = document.getElementById('apiKey').value.trim();
             const promptText = document.getElementById('prompt').value.trim();
             const btn = document.getElementById('genBtn');
@@ -85,26 +88,32 @@
 
             if (!key || !promptText) {
                 alert("Manca Key o Prompt!");
+                console.log("Manca key o prompt");
                 return;
             }
 
             btn.disabled = true;
             loader.classList.remove('hidden');
+            console.log("Loading avviato");
 
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
                 
+                console.log("Chiamata API a:", url);
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Genera un file HTML unico (con CSS Tailwind e JS incluso) per questa idea: ${promptText}. Rispondi SOLO col codice HTML completo, senza spiegazioni, markdown, ```html o altro.`
+                                text: `Genera un file HTML unico (con CSS Tailwind e JS incluso) per questa idea: ${promptText}. Rispondi SOLO col codice HTML completo, senza spiegazioni, markdown o altro.`
                             }]
                         }]
                     })
                 });
+
+                console.log("Risposta status:", response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -112,7 +121,7 @@
                 }
 
                 const data = await response.json();
-                console.log("Risposta API completa:", data); // debug in console
+                console.log("Risposta API completa:", data);
 
                 if (!data || !data.candidates || data.candidates.length === 0) {
                     throw new Error("Gemini non ha restituito candidati validi");
@@ -125,20 +134,31 @@
                 iframe.srcdoc = generatedCode;
                 
                 document.getElementById('resultSection').classList.remove('hidden');
+                console.log("Preview aggiornata con successo");
             } catch (error) {
                 console.error("Errore dettagliato:", error);
                 alert("Errore durante la generazione: " + error.message);
             } finally {
                 btn.disabled = false;
                 loader.classList.add('hidden');
+                console.log("Loading finito");
             }
         }
+
+        // Aggiungi listener per click e touch (mobile)
+        const genBtn = document.getElementById('genBtn');
+        genBtn.addEventListener('click', generateCode);
+        genBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            generateCode();
+        });
 
         function copyCode() {
             navigator.clipboard.writeText(generatedCode);
             alert("Codice copiato!");
         }
 
+        // Service Worker per PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
