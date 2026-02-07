@@ -2,104 +2,98 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Oracle v2.1 | Full-Impact</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Oracle v2.2 | Super-Nova</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon: #00ff41; --bg: #000; }
-        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: 'Arial Black', sans-serif; overflow: hidden; }
+        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: 'Impact', 'Arial Black', sans-serif; overflow: hidden; }
         
-        /* Griglia Dinamica ad alto impatto */
         .main-grid {
             display: grid;
-            grid-template-rows: 5% 18% 12% 35% 15% 15%; 
+            grid-template-rows: 5% 20% 12% 38% 10% 15%; 
             height: 100vh;
-            padding: 5px;
+            padding: 4px;
             gap: 4px;
         }
 
         .card { 
             background: #0a0b0d; 
             border: 2px solid #1e293b; 
-            border-radius: 12px; 
+            border-radius: 8px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
-            overflow: hidden;
         }
 
-        .label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 900; }
-        .big-val { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 5px; }
+        /* Testo che si adatta allo schermo */
+        .label { font-size: 3vw; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .big-val { font-size: 10vw; line-height: 1; margin: 0; }
+        .mid-val { font-size: 6vw; line-height: 1; }
         
-        input[type=range] { width: 90%; accent-color: var(--neon); height: 25px; }
-        input[type=number], input[type=password] { 
-            background: transparent !important; 
-            color: var(--neon) !important; 
-            border: none !important; 
-            font-size: 28px; 
-            font-weight: 900; 
-            text-align: center; 
-            width: 100%;
+        input[type=range] { width: 95%; accent-color: var(--neon); height: 30px; }
+        input[type=number], input[type=password], input[type=text] { 
+            background: transparent !important; color: var(--neon) !important; 
+            border: none !important; font-size: 8vw; text-align: center; width: 100%; font-weight: 900;
         }
         
-        .btn-boot { background: var(--neon); color: #000; font-weight: 900; height: 100%; width: 100%; border-radius: 10px; font-size: 20px; }
-        .log-area { background: #000; font-size: 11px; overflow-y: auto; padding: 10px; font-family: monospace; color: #58a6ff; border: 1px solid #1e293b; }
+        .btn-boot { background: var(--neon); color: #000; font-weight: 900; height: 100%; width: 100%; border-radius: 8px; font-size: 6vw; }
+        .log-area { background: #000; font-size: 2.5vw; overflow-y: auto; padding: 8px; font-family: monospace; color: #58a6ff; border: 1px solid #1e293b; }
     </style>
 </head>
 <body>
 
 <div class="main-grid">
     <div class="flex justify-between items-center px-2">
-        <span class="text-[10px] font-black tracking-widest">ORACLE v2.1</span>
-        <span id="tkn" class="text-white text-[10px] bg-red-600 px-3 py-1 rounded-full font-bold">TOKENS: 0</span>
+        <span style="font-size: 3vw;">ORACLE v2.2</span>
+        <span id="tkn" class="text-white bg-red-600 px-2 rounded font-bold" style="font-size: 3vw;">TOKENS: 0</span>
     </div>
 
     <div class="grid grid-cols-2 gap-2">
-        <div class="card border-blue-900">
-            <span class="label">BUDGET DEMO $</span>
+        <div class="card border-blue-700">
+            <span class="label">BUDGET DEMO</span>
             <input type="number" id="budget" value="1000">
         </div>
         <div class="card border-green-500">
             <span class="label">BTC LIVE</span>
-            <span id="btc" class="big-val text-green-400">---</span>
+            <span id="btc" class="big-val">---</span>
         </div>
     </div>
 
     <div class="card grid grid-cols-3 w-full">
-        <div class="text-center"><p class="label">PNL D</p><p id="pnl-d" class="text-lg font-bold">+$0</p></div>
-        <div class="text-center"><p class="label">PNL M</p><p id="pnl-m" class="text-lg font-bold">+$0</p></div>
-        <div class="text-center"><p class="label">PNL R</p><p id="pnl-r" class="text-lg font-bold">+$0</p></div>
+        <div class="text-center"><p class="label">PNL D</p><p id="pnl-d" class="mid-val">+$0</p></div>
+        <div class="text-center"><p class="label">PNL M</p><p id="pnl-m" class="mid-val">+$0</p></div>
+        <div class="text-center"><p class="label">PNL R</p><p id="pnl-r" class="mid-val">+$0</p></div>
     </div>
 
-    <div class="card space-y-2">
-        <span class="label">ALLOCATION CONTROL (100%)</span>
-        <div class="w-full px-4 space-y-2">
-            <div class="flex justify-between items-center"><span class="text-sm">DUTCH</span><b id="v-d" class="text-xl">50%</b></div>
+    <div class="card p-2">
+        <span class="label">WALLET CONTROL (100%)</span>
+        <div class="w-full space-y-2">
+            <div class="flex justify-between"><span class="label">DUTCH</span><b id="v-d" style="font-size:5vw;">50%</b></div>
             <input type="range" id="s-d" value="50" oninput="balance('d')">
-            <div class="flex justify-between items-center"><span class="text-sm">METEO</span><b id="v-m" class="text-xl">30%</b></div>
+            <div class="flex justify-between"><span class="label">METEO</span><b id="v-m" style="font-size:5vw;">30%</b></div>
             <input type="range" id="s-m" value="30" oninput="balance('m')">
-            <div class="flex justify-between items-center"><span class="text-sm">RARE</span><b id="v-r" class="text-xl">20%</b></div>
+            <div class="flex justify-between"><span class="label">RARE</span><b id="v-r" style="font-size:5vw;">20%</b></div>
             <input type="range" id="s-r" value="20" oninput="balance('r')">
         </div>
     </div>
 
     <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-1 card">
-             <button onclick="tMode()" id="m-btn" class="h-full w-full bg-blue-900 text-xs font-bold rounded-lg">DEMO</button>
+        <div class="col-span-3 card">
+            <input type="password" id="key" placeholder="PASTE API KEY" style="font-size: 4vw; height: 100%;">
         </div>
-        <div class="col-span-3">
-            <button onclick="boot()" class="btn-boot">INITIALIZE</button>
-        </div>
+        <button onclick="boot()" class="btn-boot col-span-1">GO</button>
     </div>
 
     <div id="log" class="log-area">
-        > Terminal Ready. UI Calibrated.
+        > Terminal Ready.<br>
+        > Waiting for API Key...
     </div>
 </div>
 
 <script>
-    let isR = false; let ws = null;
+    let ws = null;
 
     function l(msg, col='') {
         const log = document.getElementById('log');
@@ -108,68 +102,54 @@
     }
 
     function balance(active) {
-        let d = document.getElementById('s-d');
-        let m = document.getElementById('s-m');
-        let r = document.getElementById('s-r');
+        let d = document.getElementById('s-d'); let m = document.getElementById('s-m'); let r = document.getElementById('s-r');
         let total = parseInt(d.value) + parseInt(m.value) + parseInt(r.value);
         let diff = total - 100;
-
-        if (active === 'd') {
-            m.value = Math.max(0, parseInt(m.value) - diff);
-            r.value = 100 - parseInt(d.value) - parseInt(m.value);
-        } else if (active === 'm') {
-            d.value = Math.max(0, parseInt(d.value) - diff);
-            r.value = 100 - parseInt(d.value) - parseInt(m.value);
-        } else {
-            d.value = Math.max(0, parseInt(d.value) - diff);
-            m.value = 100 - parseInt(d.value) - parseInt(r.value);
-        }
-
+        if (active === 'd') { m.value = Math.max(0, parseInt(m.value) - diff); r.value = 100 - parseInt(d.value) - parseInt(m.value); }
+        else if (active === 'm') { d.value = Math.max(0, parseInt(d.value) - diff); r.value = 100 - parseInt(d.value) - parseInt(m.value); }
+        else { d.value = Math.max(0, parseInt(d.value) - diff); m.value = 100 - parseInt(d.value) - parseInt(r.value); }
         document.getElementById('v-d').innerText = d.value + '%';
         document.getElementById('v-m').innerText = m.value + '%';
         document.getElementById('v-r').innerText = r.value + '%';
     }
 
     async function boot() {
-        const k = document.querySelector('input[type=password]') ? "" : document.getElementById('key-input')?.value;
-        const key = k || prompt("Inserisci Gemini API Key:");
-        if(!key) return;
+        const key = document.getElementById('key').value.trim();
+        if(!key) return l("Error: No Key Provided", "red");
+        l("Handshake 3.0 Initiated...");
         
-        l("Starting Handshake Sequence...");
-        
-        // Array di endpoint per trovare quello attivo
-        const endpoints = [
+        // Risoluzione errore "Model Not Found": proviamo il path esatto suggerito da Google
+        const urls = [
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
             `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`
         ];
 
-        for(let url of endpoints) {
+        for(let url of urls) {
             try {
-                l(`Testing: ${url.includes('v1beta') ? 'v1beta' : 'v1'}...`);
                 const r = await fetch(url, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({contents: [{parts: [{text: "ping"}]}]})
+                    body: JSON.stringify({contents: [{parts: [{text: "Hello. Response OK."}]}]})
                 });
                 const data = await r.json();
                 if(data.candidates) {
                     document.getElementById('tkn').innerText = "TOKENS: " + data.usageMetadata.totalTokenCount;
-                    document.getElementById('tkn').className = "text-white text-[10px] bg-green-600 px-3 py-1 rounded-full font-bold shadow-lg";
-                    l("ORACLE CONNECTED!", "#00ff41");
+                    document.getElementById('tkn').style.background = "#16a34a";
+                    l("SUCCESS: ORACLE ONLINE", "#00ff41");
                     return;
-                } else { l(`Fail: ${data.error?.message.substring(0,30)}...`, "orange"); }
-            } catch (e) { l("Network Error", "red"); }
+                } else { l("Path Fail: " + url.split('v1')[1], "orange"); }
+            } catch (e) { l("Conn Error", "red"); }
         }
+        l("CRITICAL: Verify API Key Permissions!", "red");
     }
 
-    function connect() {
+    (function connect() {
         ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
         ws.onmessage = (e) => {
             const data = JSON.parse(e.data);
             document.getElementById('btc').innerText = "$" + Math.round(data.c);
         };
-    }
-    connect();
+    })();
 </script>
 </body>
 </html>
