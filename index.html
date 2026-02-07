@@ -2,60 +2,59 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ORACLE v5.0 | CORE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORACLE v6.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: #000; color: #00ff41; font-family: monospace; padding: 10px; }
+        .card { background: #111; border: 1px solid #333; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+        .label { font-size: 10px; color: #888; text-transform: uppercase; }
+        .val { font-size: 20px; font-weight: bold; color: #fff; }
         
-        /* Terminale in ALTO per controllo immediato */
-        #log { height: 25vh; background: #050505; border-bottom: 2px solid #1e293b; padding: 10px; font-size: 11px; overflow-y: auto; color: #58a6ff; white-space: pre-wrap; }
+        /* Terminale sempre visibile e alto */
+        #log { background: #050505; border: 1px solid #00ff41; height: 150px; overflow-y: scroll; font-size: 10px; padding: 5px; margin-bottom: 10px; white-space: pre-wrap; }
         
-        .main-content { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; justify-content: space-around; }
+        input[type=range] { width: 100%; height: 15px; accent-color: #00ff41; margin: 10px 0; }
+        input[type=password], input[type=number] { background: #222; border: 1px solid #444; color: #00ff41; padding: 10px; width: 100%; font-size: 16px; margin-top: 5px; }
         
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .box { background: #0a0c10; border: 1px solid #1e293b; padding: 12px; border-radius: 4px; text-align: center; }
-        .label { font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .value { font-size: 22px; font-weight: bold; color: #fff; }
-        
-        /* Slider con parte VERDE visibile */
-        .slider-wrap { background: #0a0c10; border: 1px solid #1e293b; padding: 15px; border-radius: 4px; }
-        input[type=range] { width: 100%; height: 10px; background: #1e293b; border-radius: 5px; appearance: none; outline: none; margin: 10px 0; }
-        input[type=range]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #00ff41; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
-
-        .footer { padding: 10px; background: #0a0c10; border-top: 1px solid #1e293b; }
-        .btn-init { background: #00ff41; color: #000; font-weight: 900; width: 100%; padding: 15px; border-radius: 4px; font-size: 18px; text-transform: uppercase; }
-        input[type=password] { background: #000; border: 1px solid #334155; color: #00ff41; width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 4px; text-align: center; }
+        .btn-big { background: #00ff41; color: #000; font-weight: 900; width: 100%; padding: 20px; font-size: 20px; border-radius: 8px; margin: 15px 0; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-<div id="log">> SYSTEM BOOT v5.0...
-> Status: Terminal Ready.
-> Waiting for API Handshake...</div>
+<div id="log">> SYSTEM REBOOT v6.0
+> Status: Awaiting Connection...</div>
 
-<div class="main-content">
-    <div class="data-grid">
-        <div class="box"><span class="label">Budget Demo</span><div class="value">$1000</div></div>
-        <div class="box"><span class="label">BTC/USDT</span><div id="btc" class="value text-green-400">---</div></div>
+<div class="card">
+    <div class="flex justify-between">
+        <div><span class="label">BUDGET</span><div class="val">$1000</div></div>
+        <div class="text-right"><span class="label">BTC LIVE</span><div id="btc" class="val text-green-400">---</div></div>
     </div>
+</div>
 
-    <div class="slider-wrap">
-        <div class="flex justify-between text-[11px]"><span>DUTCH ALLOCATION</span><span id="v-d" class="text-white">50%</span></div>
+<div class="card">
+    <span class="label">ALLOCATION CONTROL</span>
+    <div class="mt-2">
+        <div class="flex justify-between text-[11px]"><span>DUTCH</span><span id="v-d">50%</span></div>
         <input type="range" id="s-d" min="0" max="100" value="50" oninput="balance('d')">
         
-        <div class="flex justify-between text-[11px] mt-4"><span>METEO OPS</span><span id="v-m" class="text-white">30%</span></div>
+        <div class="flex justify-between text-[11px]"><span>METEO</span><span id="v-m">30%</span></div>
         <input type="range" id="s-m" min="0" max="100" value="30" oninput="balance('m')">
         
-        <div class="flex justify-between text-[11px] mt-4"><span>RARE ASSETS</span><span id="v-r" class="text-white">20%</span></div>
+        <div class="flex justify-between text-[11px]"><span>RARE</span><span id="v-r">20%</span></div>
         <input type="range" id="s-r" min="0" max="100" value="20" oninput="balance('r')">
     </div>
 </div>
 
-<div class="footer">
-    <input type="password" id="key" placeholder="INSERISCI API KEY GEMINI">
-    <button onclick="boot()" class="btn-init">Inizializza Sistema</button>
-    <div class="text-[9px] text-center mt-2 opacity-50">TOKENS: <span id="tkn">0</span> | V5.0 STABLE</div>
+<div class="card">
+    <span class="label">API KEY ACCESS</span>
+    <input type="password" id="key" placeholder="PASTE YOUR GEMINI KEY HERE">
+    <button onclick="boot()" class="btn-big">INITIALIZE SYSTEM</button>
+</div>
+
+<div class="text-center pb-10">
+    <span class="label">ACTIVE TOKENS:</span>
+    <span id="tkn" class="text-white font-bold ml-2">0</span>
 </div>
 
 <script>
@@ -79,35 +78,38 @@
 
     async function boot() {
         const key = document.getElementById('key').value.trim();
-        if(!key) return l("ERRORE: CHIAVE ASSENTE", "red");
+        if(!key) return l("ERROR: KEY MISSING", "red");
         
-        l("AVVIO PROTOCOLLO DI CONNESSIONE...");
+        l("STARTING BRUTE-FORCE CONNECTION...");
         
-        const models = ['gemini-1.5-flash', 'gemini-1.5-flash-8b'];
-        
-        for(let m of models) {
+        // Testiamo versioni e modelli in sequenza per eliminare il NOT_FOUND
+        const trials = [
+            {v: 'v1beta', m: 'gemini-1.5-flash'},
+            {v: 'v1', m: 'gemini-1.5-flash'},
+            {v: 'v1beta', m: 'gemini-1.5-flash-8b'},
+            {v: 'v1', m: 'gemini-pro'}
+        ];
+
+        for(let t of trials) {
             try {
-                l(`TENTATIVO SU: ${m}...`);
-                // URL forzato v1beta per bypassare restrizioni regionali
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
+                l(`TRYING: ${t.v} / ${t.m}...`);
+                const res = await fetch(`https://generativelanguage.googleapis.com/${t.v}/models/${t.m}:generateContent?key=${key}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({contents:[{parts:[{text:"ping"}]}]})
                 });
+                const data = await res.json();
                 
-                const data = await response.json();
-                
-                if (data.candidates) {
-                    l(`SUCCESSO: Connesso a ${m}`, "#00ff41");
+                if(data.candidates) {
+                    l(`STABLE CONNECTION: ${t.m}`, "#00ff41");
                     document.getElementById('tkn').innerText = data.usageMetadata.totalTokenCount;
                     return;
                 } else {
-                    l(`RIFIUTATO: ${data.error?.message || "Errore Sconosciuto"}`, "orange");
+                    l(`FAIL: ${data.error?.message || "REJECTED"}`, "orange");
                 }
-            } catch (e) {
-                l("ERRORE DI RETE", "red");
-            }
+            } catch(e) { l("NET ERROR", "red"); }
         }
+        l("CRITICAL: ALL MODELS REJECTED. CHECK API CONSOLE.", "red");
     }
 
     (function connect() {
