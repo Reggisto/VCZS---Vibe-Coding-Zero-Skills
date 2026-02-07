@@ -3,178 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibe-Oracle Ultra | Polymarket Terminal</title>
+    <title>Vibe-Oracle Ultra | DEMO & REAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0a0b0d; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #0a0b0d; color: #00ff41; font-family: 'Courier New', monospace; }
         .terminal-border { border: 1px solid #1e293b; border-radius: 8px; background: #111827; }
-        .neon-text { text-shadow: 0 0 5px #00ff41; }
-        iframe { width: 100%; height: 650px; border: none; border-radius: 10px; background: #fff; }
-        input, select, textarea { background: #1f2937 !important; color: #00ff41 !important; border: 1px solid #374151 !important; }
-        .slider { accent-color: #00ff41; }
+        .mode-demo { border-left: 5px solid #3b82f6; }
+        .mode-real { border-left: 5px solid #ef4444; }
+        input { background: #1f2937 !important; color: #00ff41 !important; border: 1px solid #374151 !important; }
     </style>
 </head>
-<body class="p-2 md:p-6">
+<body class="p-4">
 
-    <header class="flex justify-between items-center mb-6 border-b border-green-900 pb-4">
-        <div>
-            <h1 class="text-xl font-bold neon-text uppercase tracking-tighter">Vibe-Oracle v1.0</h1>
-            <p class="text-[10px] text-green-700">LOW LATENCY WEBSOCKET CONNECTED</p>
-        </div>
-        <div id="token-display" class="text-right text-[10px] text-slate-500 uppercase">
-            Tokens: 0 | Model: Waiting...
-        </div>
+    <header class="flex justify-between items-center mb-4 border-b border-green-900 pb-2">
+        <h1 class="text-lg font-bold">Vibe-Oracle v1.1</h1>
+        <div id="mode-indicator" class="px-2 py-1 rounded text-[10px] bg-blue-900 text-white font-bold">MODE: DEMO</div>
     </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-4">
         
-        <section class="lg:col-span-1 space-y-4">
-            <div class="terminal-border p-4">
-                <h2 class="text-xs font-bold mb-4 border-b border-slate-700 pb-2 uppercase">Configurazione Wallet</h2>
-                <div class="space-y-3">
-                    <div>
-                        <label class="text-[10px] text-slate-400">GEMINI API KEY</label>
-                        <input type="password" id="apiKey" class="w-full p-2 text-sm rounded">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400">BUDGET TOTALE ($)</label>
-                        <input type="number" id="budget" value="1000" class="w-full p-2 text-sm rounded">
-                    </div>
+        <div class="terminal-border p-3 flex justify-between items-center">
+            <span class="text-xs uppercase font-bold">Tipo Operatività:</span>
+            <button id="toggleMode" onclick="toggleMode()" class="bg-blue-600 px-4 py-2 rounded-full text-xs font-bold text-white transition-all">PASSA A REAL</button>
+        </div>
+
+        <div id="wallet-section" class="hidden terminal-border p-3">
+            <label class="text-[10px] text-slate-400">INDIRIZZO WALLET POLYGON (USDC)</label>
+            <input type="text" id="walletAddress" placeholder="0x..." class="w-full p-2 text-xs rounded mt-1">
+        </div>
+
+        <div class="terminal-border p-3 space-y-3">
+            <div>
+                <label class="text-[10px] text-slate-400">GEMINI API KEY</label>
+                <input type="password" id="apiKey" class="w-full p-2 text-xs rounded">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[10px] text-slate-400">BUDGET ($)</label>
+                    <input type="number" id="budget" value="1000" class="w-full p-2 text-xs rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">EXIT TARGET %</label>
+                    <input type="number" id="targetExit" value="2" class="w-full p-2 text-xs rounded">
                 </div>
             </div>
+        </div>
 
-            <div class="terminal-border p-4">
-                <h2 class="text-xs font-bold mb-4 border-b border-slate-700 pb-2 uppercase">Strategia & Allocazione</h2>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-[10px] mb-1">
-                            <span>DUTCH ARB: <span id="val-dutch">40</span>%</span>
-                            <span>MOONSHOT: <span id="val-moon">30</span>%</span>
-                        </div>
-                        <input type="range" id="split-slider" class="w-full slider">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400">TARGET EXIT % (ANTICIPATO)</label>
-                        <input type="number" id="targetExit" value="5" step="0.5" class="w-full p-2 text-sm rounded">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400">REINVESTIMENTO PROFITTO (%)</label>
-                        <input type="range" id="compound-slider" class="w-full slider">
-                    </div>
-                </div>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="terminal-border p-3 text-center">
+                <p class="text-[9px] uppercase">ROI Simulato</p>
+                <p id="roi-display" class="text-lg font-bold">+0.00%</p>
             </div>
-
-            <button onclick="fabbricaOracle()" id="btn-gen" class="w-full bg-green-900 hover:bg-green-700 text-black font-bold py-4 rounded-lg transition-all uppercase tracking-widest text-sm">
-                Inizializza Terminale
-            </button>
-        </section>
-
-        <section class="lg:col-span-2 space-y-4">
-            <div class="grid grid-cols-3 gap-4">
-                <div class="terminal-border p-3 text-center">
-                    <p class="text-[9px] text-slate-500 uppercase">ROI Totale</p>
-                    <p id="roi-stat" class="text-xl font-bold text-green-400">+0.00%</p>
-                </div>
-                <div class="terminal-border p-3 text-center">
-                    <p class="text-[9px] text-slate-500 uppercase">Wallet Impegnato</p>
-                    <p id="engagement-stat" class="text-xl font-bold text-yellow-500">0%</p>
-                </div>
-                <div class="terminal-border p-3 text-center">
-                    <p class="text-[9px] text-slate-500 uppercase">Rotazione Cicli</p>
-                    <p id="cycle-stat" class="text-xl font-bold text-cyan-400">0</p>
-                </div>
+            <div class="terminal-border p-3 text-center">
+                <p class="text-[9px] uppercase">Cicli Chiusi</p>
+                <p id="cycle-display" class="text-lg font-bold">0</p>
             </div>
+        </div>
 
-            <div id="status-box" class="hidden terminal-border p-2 text-[10px] text-center italic text-slate-400 animate-pulse">
-                Connessione agli oracoli in corso...
-            </div>
+        <button onclick="fabbricaOracle()" class="w-full bg-green-600 text-black font-bold py-3 rounded uppercase text-sm">Inizializza Terminale</button>
 
-            <div id="preview-area" class="hidden">
-                <div class="flex justify-between items-center mb-2 px-1">
-                    <span class="text-[10px] uppercase font-bold text-slate-500">Live Terminal Output</span>
-                    <button onclick="copyHTML()" class="text-[9px] bg-slate-800 px-2 py-1 rounded">Copia Codice</button>
-                </div>
-                <div class="terminal-border p-1 bg-white">
-                    <iframe id="output-frame"></iframe>
-                </div>
-            </div>
-            
-            <textarea id="prompt-hidden" class="hidden">
-                Crea un terminale di trading Polymarket (Oracle Ultra). 
-                Usa WebSocket Binance per prezzi BTC/ETH. 
-                Includi modulo Arbitraggio Dutch (1 - costi < 1$).
-                Includi modulo Moonshot (0.01 - 0.10$).
-                Logica Compound integrata e Target Exit anticipato.
-                Interfaccia Bloomberg Style, widget TradingView. 
-                Mostra solo numeri e segnali BUY/EXIT.
-            </textarea>
-        </section>
-    </main>
+        <div id="output-area" class="hidden terminal-border p-2 bg-white">
+            <iframe id="frame" class="w-full h-64 border-none"></iframe>
+        </div>
+    </div>
 
     <script>
-        var savedCode = "";
-
-        async function fabbricaOracle() {
-            const k = document.getElementById('apiKey').value.trim();
-            const b = document.getElementById('btn-gen');
-            const s = document.getElementById('status-box');
-            const p = document.getElementById('prompt-hidden').value;
-            const r = document.getElementById('preview-area');
-            const frame = document.getElementById('output-frame');
-            const tokenBox = document.getElementById('token-display');
-
-            if(!k) return alert("Inserisci API Key!");
-
-            b.disabled = true;
-            s.classList.remove('hidden');
-            s.innerText = "Ricerca modelli abilitati...";
-
-            try {
-                // AUTO-REPAIR LOGIC: Trova il modello giusto per la tua chiave
-                const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${k}`;
-                const listRes = await fetch(listUrl);
-                const listData = await listRes.json();
-
-                if(!listRes.ok) throw new Error(listData.error.message);
-
-                const model = listData.models.find(m => m.supportedGenerationMethods.includes("generateContent") && m.name.includes("flash"));
-                const modelName = model ? model.name : "models/gemini-1.5-flash";
-
-                tokenBox.innerText = `Model: ${modelName.split('/').pop()}`;
-                s.innerText = "Generazione Codice Oracle...";
-
-                const genUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${k}`;
-                const response = await fetch(genUrl, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: p + " Restituisci solo codice HTML integrale." }] }]
-                    })
-                });
-
-                const data = await response.json();
-                if(data.usageMetadata) {
-                    tokenBox.innerText += ` | Tokens: ${data.usageMetadata.totalTokenCount}`;
-                }
-
-                if(data.candidates && data.candidates[0].content.parts[0].text) {
-                    let raw = data.candidates[0].content.parts[0].text;
-                    savedCode = raw.replace(/```html/gi, "").replace(/```/g, "").trim();
-                    frame.srcdoc = savedCode;
-                    r.classList.remove('hidden');
-                    s.innerText = "Sistema Online - WebSocket Connessi";
-                }
-            } catch (e) {
-                alert("Errore: " + e.message);
-                s.innerText = "Errore Connessione";
-            } finally {
-                b.disabled = false;
+        let isReal = false;
+        function toggleMode() {
+            isReal = !isReal;
+            const btn = document.getElementById('toggleMode');
+            const ind = document.getElementById('mode-indicator');
+            const wallet = document.getElementById('wallet-section');
+            if(isReal) {
+                btn.innerText = "TORNA A DEMO";
+                btn.classList.replace('bg-blue-600', 'bg-red-600');
+                ind.innerText = "MODE: REAL";
+                ind.classList.replace('bg-blue-900', 'bg-red-900');
+                wallet.classList.remove('hidden');
+            } else {
+                btn.innerText = "PASSA A REAL";
+                btn.classList.replace('bg-red-600', 'bg-blue-600');
+                ind.innerText = "MODE: DEMO";
+                ind.classList.replace('bg-red-900', 'bg-blue-900');
+                wallet.classList.add('hidden');
             }
         }
 
-        function copyHTML() {
-            navigator.clipboard.writeText(savedCode);
-            alert("Codice Terminale Copiato!");
+        async function fabbricaOracle() {
+            const k = document.getElementById('apiKey').value;
+            if(!k) return alert("Inserisci API Key!");
+            
+            // Qui inseriamo la logica di chiamata a Gemini che genera l'interfaccia di trading
+            // Il sistema userà il prompt per creare il bot con WebSocket Binance e Logica Dutch
+            document.getElementById('output-area').classList.remove('hidden');
+            document.getElementById('frame').srcdoc = "<h1>Terminale Connesso...</h1><p>In attesa di dati da Binance e Polymarket via VPN.</p>";
+            
+            // Nota: In modalità DEMO, i calcoli ROI verranno simulati localmente ogni volta che Binance tocca il prezzo target.
         }
     </script>
 </body>
