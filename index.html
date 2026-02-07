@@ -3,64 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORACLE v6.0</title>
+    <title>ORACLE v7.0 | REBORN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #00ff41; font-family: monospace; padding: 10px; }
-        .card { background: #111; border: 1px solid #333; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
-        .label { font-size: 10px; color: #888; text-transform: uppercase; }
-        .val { font-size: 20px; font-weight: bold; color: #fff; }
+        body { background: #000; color: #00ff41; font-family: monospace; margin: 0; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; }
+        .card { background: #0a0a0a; border: 1px solid #1e293b; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .val { font-size: 24px; font-weight: bold; color: #fff; }
         
-        /* Terminale sempre visibile e alto */
-        #log { background: #050505; border: 1px solid #00ff41; height: 150px; overflow-y: scroll; font-size: 10px; padding: 5px; margin-bottom: 10px; white-space: pre-wrap; }
+        /* Terminale ora solido e leggibile */
+        #log { background: #000; border: 1px solid #334155; height: 180px; overflow-y: auto; font-size: 11px; padding: 10px; color: #58a6ff; margin-bottom: 10px; }
         
-        input[type=range] { width: 100%; height: 15px; accent-color: #00ff41; margin: 10px 0; }
-        input[type=password], input[type=number] { background: #222; border: 1px solid #444; color: #00ff41; padding: 10px; width: 100%; font-size: 16px; margin-top: 5px; }
+        /* Cursori visibili con traccia verde */
+        .slider-box { margin: 15px 0; }
+        input[type=range] { width: 100%; height: 8px; background: #1e293b; border-radius: 5px; appearance: none; accent-color: #00ff41; }
         
-        .btn-big { background: #00ff41; color: #000; font-weight: 900; width: 100%; padding: 20px; font-size: 20px; border-radius: 8px; margin: 15px 0; text-transform: uppercase; }
+        /* Bottone enorme a fine pagina */
+        .btn-action { background: #00ff41; color: #000; font-weight: 900; width: 100%; padding: 20px; font-size: 18px; border-radius: 8px; cursor: pointer; border: none; text-transform: uppercase; margin-top: auto; }
+        input[type=password] { background: #111; border: 1px solid #00ff41; color: #fff; padding: 15px; width: 100%; font-size: 16px; border-radius: 4px; margin-bottom: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="log">> SYSTEM REBOOT v6.0
-> Status: Awaiting Connection...</div>
+<div id="log">> TERMINAL READY v7.0
+> Waiting for user handshake...</div>
 
 <div class="card">
-    <div class="flex justify-between">
-        <div><span class="label">BUDGET</span><div class="val">$1000</div></div>
-        <div class="text-right"><span class="label">BTC LIVE</span><div id="btc" class="val text-green-400">---</div></div>
+    <div class="flex justify-between items-center">
+        <div><span class="label">Budget Demo</span><div class="val">$1000</div></div>
+        <div class="text-right"><span class="label">BTC/USDT</span><div id="btc" class="val text-green-400">---</div></div>
     </div>
 </div>
 
 <div class="card">
-    <span class="label">ALLOCATION CONTROL</span>
-    <div class="mt-2">
-        <div class="flex justify-between text-[11px]"><span>DUTCH</span><span id="v-d">50%</span></div>
+    <span class="label">Risk Distribution</span>
+    <div class="slider-box">
+        <div class="flex justify-between text-[11px]"><span>DUTCH</span><span id="v-d" class="text-white">50%</span></div>
         <input type="range" id="s-d" min="0" max="100" value="50" oninput="balance('d')">
-        
-        <div class="flex justify-between text-[11px]"><span>METEO</span><span id="v-m">30%</span></div>
+    </div>
+    <div class="slider-box">
+        <div class="flex justify-between text-[11px]"><span>METEO</span><span id="v-m" class="text-white">30%</span></div>
         <input type="range" id="s-m" min="0" max="100" value="30" oninput="balance('m')">
-        
-        <div class="flex justify-between text-[11px]"><span>RARE</span><span id="v-r">20%</span></div>
+    </div>
+    <div class="slider-box">
+        <div class="flex justify-between text-[11px]"><span>RARE</span><span id="v-r" class="text-white">20%</span></div>
         <input type="range" id="s-r" min="0" max="100" value="20" oninput="balance('r')">
     </div>
 </div>
 
-<div class="card">
-    <span class="label">API KEY ACCESS</span>
-    <input type="password" id="key" placeholder="PASTE YOUR GEMINI KEY HERE">
-    <button onclick="boot()" class="btn-big">INITIALIZE SYSTEM</button>
+<div class="mt-4">
+    <input type="password" id="key" placeholder="INCOLLA QUI API KEY">
+    <button onclick="boot()" class="btn-action">INITIALIZE ORACLE</button>
 </div>
 
-<div class="text-center pb-10">
-    <span class="label">ACTIVE TOKENS:</span>
-    <span id="tkn" class="text-white font-bold ml-2">0</span>
+<div class="text-center py-4 opacity-50 text-[10px]">
+    API STATUS: <span id="api-status">OFFLINE</span> | TOKENS: <span id="tkn">0</span>
 </div>
 
 <script>
     function l(msg, col='') {
         const log = document.getElementById('log');
-        log.innerHTML += `<div style="color:${col}">> ${msg}</div>`;
+        log.innerHTML += `<div style="color:${col}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
         log.scrollTop = log.scrollHeight;
     }
 
@@ -78,38 +81,39 @@
 
     async function boot() {
         const key = document.getElementById('key').value.trim();
-        if(!key) return l("ERROR: KEY MISSING", "red");
+        if(!key) return l("ERROR: MISSING KEY", "red");
         
-        l("STARTING BRUTE-FORCE CONNECTION...");
+        l("INITIATING NEW API PROTOCOL...");
         
-        // Testiamo versioni e modelli in sequenza per eliminare il NOT_FOUND
-        const trials = [
-            {v: 'v1beta', m: 'gemini-1.5-flash'},
-            {v: 'v1', m: 'gemini-1.5-flash'},
-            {v: 'v1beta', m: 'gemini-1.5-flash-8b'},
-            {v: 'v1', m: 'gemini-pro'}
+        // Modelli aggiornati con la stringa esatta "models/..."
+        const endpoints = [
+            {v: 'v1beta', m: 'models/gemini-1.5-flash-latest'},
+            {v: 'v1beta', m: 'models/gemini-1.5-flash'},
+            {v: 'v1beta', m: 'models/gemini-pro'}
         ];
 
-        for(let t of trials) {
+        for(let ep of endpoints) {
             try {
-                l(`TRYING: ${t.v} / ${t.m}...`);
-                const res = await fetch(`https://generativelanguage.googleapis.com/${t.v}/models/${t.m}:generateContent?key=${key}`, {
+                l(`Testing: ${ep.m}...`);
+                const response = await fetch(`https://generativelanguage.googleapis.com/${ep.v}/${ep.m}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({contents:[{parts:[{text:"ping"}]}]})
+                    body: JSON.stringify({contents:[{parts:[{text:"test"}]}]})
                 });
-                const data = await res.json();
                 
+                const data = await response.json();
                 if(data.candidates) {
-                    l(`STABLE CONNECTION: ${t.m}`, "#00ff41");
+                    l(`SUCCESS: Connected to ${ep.m}`, "#00ff41");
+                    document.getElementById('api-status').innerText = "ONLINE";
+                    document.getElementById('api-status').style.color = "#00ff41";
                     document.getElementById('tkn').innerText = data.usageMetadata.totalTokenCount;
                     return;
                 } else {
-                    l(`FAIL: ${data.error?.message || "REJECTED"}`, "orange");
+                    l(`REJECTED: ${data.error?.message || "Check Key"}`, "orange");
                 }
-            } catch(e) { l("NET ERROR", "red"); }
+            } catch(e) { l("FETCH FAIL", "red"); }
         }
-        l("CRITICAL: ALL MODELS REJECTED. CHECK API CONSOLE.", "red");
+        l("CRITICAL: AUTH FAILED. Check Google Cloud Console.", "red");
     }
 
     (function connect() {
@@ -118,6 +122,7 @@
             const data = JSON.parse(e.data);
             document.getElementById('btc').innerText = "$" + Math.round(data.c);
         };
+        ws.onerror = () => l("Binance WebSocket Error", "red");
     })();
 </script>
 </body>
