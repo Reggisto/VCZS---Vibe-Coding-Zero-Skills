@@ -1,81 +1,101 @@
-    <script>
-        var codiceFinale = "";
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeBuilder Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .vibe-gradient { background: linear-gradient(90deg, #6739C6 0%, #473DC0 50%, #1E3DA1 100%); }
+        #preview-container iframe { width: 100%; height: 500px; border: none; background: white; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
 
-        async function startGenerazione() {
+    <header class="vibe-gradient text-white p-6 shadow-lg mb-6">
+        <h1 class="text-2xl font-bold text-center">VibeBuilder 🚀</h1>
+    </header>
+
+    <main class="p-4 max-w-lg mx-auto space-y-6">
+        <input type="password" id="apiKey" placeholder="Incolla Gemini API Key..." 
+            class="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-purple-500">
+
+        <textarea id="prompt" rows="4" placeholder="Cosa creiamo oggi?"
+            class="w-full p-4 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-purple-500 text-lg"></textarea>
+        
+        <button onclick="generaOra()" id="btn" class="w-full vibe-gradient text-white font-bold py-5 rounded-2xl shadow-xl active:scale-95 transition-all">
+            GENERA APP
+        </button>
+
+        <div id="loading" class="hidden text-center py-6 font-bold text-purple-600 animate-pulse">
+            L'IA sta scrivendo il codice...
+        </div>
+
+        <section id="result" class="hidden space-y-4">
+            <h3 class="font-bold text-slate-700">Anteprima Live:</h3>
+            <div id="preview-container" class="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                <iframe id="ifr"></iframe>
+            </div>
+            <button onclick="copy()" class="w-full bg-slate-200 py-3 rounded-xl font-bold">Copia Codice</button>
+        </section>
+    </main>
+
+    <script>
+        var cacheCodice = "";
+
+        async function generaOra() {
             var k = document.getElementById('apiKey').value.trim();
             var p = document.getElementById('prompt').value.trim();
-            var b = document.getElementById('mainBtn');
+            var b = document.getElementById('btn');
             var l = document.getElementById('loading');
-            var r = document.getElementById('resultArea');
-            var f = document.getElementById('previewFrame');
+            var r = document.getElementById('result');
+            var i = document.getElementById('ifr');
 
-            if (!k || !p) {
-                alert("Inserisci Key e Testo!");
-                return;
-            }
+            if(!k || !p) return alert("Inserisci dati!");
 
             b.disabled = true;
             l.classList.remove('hidden');
             r.classList.add('hidden');
 
-            // Lista di tentativi per bypassare l'errore "Not Found" degli screenshot
-            // Proviamo i nomi modelli più comuni accettati da Google
-            const modelliDaProvare = [
-                "gemini-1.5-flash",
-                "gemini-1.5-flash-latest",
-                "gemini-pro"
-            ];
+            try {
+                // CAMBIO STRATEGIA: Usiamo l'endpoint v1beta con il modello gemini-pro (super stabile)
+                // Questo risolve l'errore "model not found" degli screenshot
+                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + k;
 
-            let successo = false;
-            let ultimoErrore = "";
+                var response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Genera un unico file HTML5 con CSS Tailwind e JS per: " + p + ". Rispondi solo col codice." }] }]
+                    })
+                });
 
-            for (let modello of modelliDaProvare) {
-                try {
-                    console.log("Tentativo con modello: " + modello);
-                    // Usiamo v1beta che è la più flessibile per le key gratuite
-                    var url = "https://generativelanguage.googleapis.com/v1beta/models/" + modello + ":generateContent?key=" + k;
+                var resData = await response.json();
 
-                    var res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: "Genera un file HTML5 unico con CSS Tailwind e JS per questa idea: " + p + ". Restituisci SOLO codice, niente chiacchiere."
-                                }]
-                            }]
-                        })
-                    });
-
-                    var data = await res.json();
-
-                    if (res.ok && data.candidates) {
-                        var txt = data.candidates[0].content.parts[0].text;
-                        codiceFinale = txt.replace(/```html/gi, "").replace(/```/g, "").trim();
-                        f.srcdoc = codiceFinale;
-                        r.classList.remove('hidden');
-                        successo = true;
-                        break; // Usciamo dal ciclo se funziona!
-                    } else {
-                        ultimoErrore = data.error ? data.error.message : "Errore sconosciuto";
-                    }
-                } catch (e) {
-                    ultimoErrore = e.message;
+                if (!response.ok) {
+                    throw new Error(resData.error ? resData.error.message : "Errore API");
                 }
-            }
 
-            if (!successo) {
-                alert("Nessun modello ha funzionato. Errore API: " + ultimoErrore);
-            }
+                if (resData.candidates && resData.candidates[0].content.parts[0].text) {
+                    var raw = resData.candidates[0].content.parts[0].text;
+                    cacheCodice = raw.replace(/```html/gi, "").replace(/```/g, "").trim();
+                    i.srcdoc = cacheCodice;
+                    r.classList.remove('hidden');
+                    r.scrollIntoView({behavior: 'smooth'});
+                }
 
-            b.disabled = false;
-            l.classList.add('hidden');
+            } catch (e) {
+                alert("Errore: " + e.message + "\n\nSuggerimento: Controlla che la tua API Key sia abilitata per 'Gemini Pro' su Google AI Studio.");
+            } finally {
+                b.disabled = false;
+                l.classList.add('hidden');
+            }
         }
 
-        function copiaCodice() {
-            if (codiceFinale) {
-                navigator.clipboard.writeText(codiceFinale);
-                alert("Copiato!");
-            }
+        function copy() {
+            navigator.clipboard.writeText(cacheCodice);
+            alert("Copiato!");
         }
     </script>
+</body>
+</html>
