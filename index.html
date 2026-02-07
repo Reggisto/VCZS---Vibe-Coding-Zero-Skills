@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeBuilder Final Fix</title>
+    <title>VibeBuilder Ultra-Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .vibe-gradient { background: linear-gradient(90deg, #6739C6 0%, #473DC0 50%, #1E3DA1 100%); }
-        iframe { width: 100%; height: 500px; border: none; background: white; }
+        iframe { width: 100%; height: 500px; border: none; background: white; border-radius: 12px; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-10">
 
     <header class="vibe-gradient text-white p-6 shadow-lg mb-6 text-center">
-        <h1 class="text-2xl font-bold">VibeBuilder 🚀</h1>
+        <h1 class="text-2xl font-bold">VibeBuilder Auto-Repair 🚀</h1>
     </header>
 
     <main class="p-4 max-w-lg mx-auto space-y-4">
-        <input type="password" id="apiKey" placeholder="Incolla Gemini API Key..." 
-            class="w-full p-4 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-purple-500">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            <input type="password" id="apiKey" placeholder="Incolla Gemini API Key..." 
+                class="w-full p-3 bg-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
 
-        <textarea id="prompt" rows="3" placeholder="Descrivi l'app..."
+        <textarea id="prompt" rows="3" placeholder="Descrivi l'app (es. Pagina gialla con scritta Ciao)"
             class="w-full p-4 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-purple-500"></textarea>
         
-        <button onclick="fabbricaApp()" id="btn" class="w-full vibe-gradient text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-all">
-            GENERA ORA
+        <button onclick="avviaGenerazioneAuto()" id="btn" class="w-full vibe-gradient text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-all">
+            GENERA APP
         </button>
 
-        <div id="status" class="hidden text-center text-sm font-medium text-slate-500 italic animate-pulse">
-            Inviando richiesta a Google...
+        <div id="status" class="hidden text-center text-xs font-mono text-slate-500 p-2 bg-slate-100 rounded">
+            Analisi permessi chiave...
         </div>
 
         <section id="result" class="hidden space-y-4">
             <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200">
-                <span class="text-xs font-bold text-slate-400 uppercase">Anteprima App</span>
+                <span class="text-xs font-bold text-slate-400 uppercase">Anteprima Live</span>
                 <button onclick="copyCode()" class="text-xs font-bold text-purple-600 px-3 py-1">Copia HTML</button>
             </div>
             <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-white">
@@ -45,7 +47,7 @@
     <script>
         var codiceSalvato = "";
 
-        async function fabbricaApp() {
+        async function avviaGenerazioneAuto() {
             var k = document.getElementById('apiKey').value.trim();
             var p = document.getElementById('prompt').value.trim();
             var b = document.getElementById('btn');
@@ -53,35 +55,45 @@
             var r = document.getElementById('result');
             var i = document.getElementById('ifr');
 
-            if(!k || !p) return alert("Mancano API Key o Testo!");
+            if(!k || !p) return alert("Inserisci API Key e Testo!");
 
             b.disabled = true;
             s.classList.remove('hidden');
             r.classList.add('hidden');
 
             try {
-                // Usiamo l'ID modello più specifico che di solito sblocca gli errori v1/v1beta
-                var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + k;
+                // FASE 1: Chiediamo a Google quali modelli puoi usare con questa chiave
+                s.innerText = "Controllo modelli disponibili...";
+                var listUrl = "https://generativelanguage.googleapis.com/v1beta/models?key=" + k;
+                var listRes = await fetch(listUrl);
+                var listData = await listRes.json();
 
-                var response = await fetch(url, {
+                if (!listRes.ok) throw new Error("Errore Chiave: " + (listData.error ? listData.error.message : "Chiave non valida"));
+
+                // Cerchiamo un modello che supporti la generazione di contenuti
+                var modelloValido = listData.models.find(m => m.supportedGenerationMethods.includes("generateContent") && (m.name.includes("flash") || m.name.includes("pro")));
+
+                if (!modelloValido) throw new Error("Nessun modello di generazione trovato per questa chiave.");
+
+                s.innerText = "Uso modello: " + modelloValido.name.split('/').pop() + "... Generazione in corso!";
+
+                // FASE 2: Usiamo il modello trovato per generare l'app
+                var genUrl = "https://generativelanguage.googleapis.com/v1beta/" + modelloValido.name + ":generateContent?key=" + k;
+
+                var genRes = await fetch(genUrl, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Genera un unico file HTML5 (con Tailwind e JS) per: " + p + ". Rispondi solo col codice." }] }]
+                        contents: [{ parts: [{ text: "Genera un unico file HTML5 (con Tailwind CSS e JS) per questa idea: " + p + ". Restituisci solo il codice puro senza markdown." }] }]
                     })
                 });
 
-                var resData = await response.json();
+                var genData = await genRes.json();
 
-                if (!response.ok) {
-                    // Se fallisce ancora, mostriamo il messaggio tecnico pulito
-                    var msg = resData.error ? resData.error.message : "Errore Sconosciuto";
-                    throw new Error(msg);
-                }
+                if (!genRes.ok) throw new Error(genData.error ? genData.error.message : "Errore durante la generazione");
 
-                if (resData.candidates && resData.candidates[0].content.parts[0].text) {
-                    var raw = resData.candidates[0].content.parts[0].text;
-                    // Pulizia tag markdown
+                if (genData.candidates && genData.candidates[0].content.parts[0].text) {
+                    var raw = genData.candidates[0].content.parts[0].text;
                     codiceSalvato = raw.replace(/```html/gi, "").replace(/```/g, "").trim();
                     i.srcdoc = codiceSalvato;
                     r.classList.remove('hidden');
@@ -89,16 +101,15 @@
                 }
             } catch (e) {
                 alert("ERRORE: " + e.message);
-                console.error(e);
+                s.innerText = "Errore: " + e.message;
             } finally {
                 b.disabled = false;
-                s.classList.add('hidden');
             }
         }
 
         function copyCode() {
             navigator.clipboard.writeText(codiceSalvato);
-            alert("Codice copiato!");
+            alert("Copiato!");
         }
     </script>
 </body>
