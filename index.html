@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Oracle v1.8 | Giant UI</title>
+    <title>Oracle v1.9 | Final Precision</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon: #00ff41; --bg: #0a0b0d; --card: #161b22; }
         body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: monospace; overflow: hidden; }
         .wrapper { display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Dashboard enorme (80%) */
-        .dash { flex: 0 0 82%; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 2px solid var(--neon); }
-        
-        /* Log compatti (18%) */
-        .logs { flex: 1; background: #000; padding: 10px; font-size: 11px; overflow-y: auto; color: #58a6ff; }
-        
-        .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
-        .label-u { font-size: 11px; color: #8b949e; text-transform: uppercase; font-weight: 900; margin-bottom: 8px; }
-        
-        input[type=range] { width: 100%; accent-color: var(--neon); height: 15px; cursor: pointer; }
-        input[type=number], input[type=password] { background: #000 !important; color: var(--neon) !important; border: 1px solid #30363d !important; padding: 12px; border-radius: 8px; font-size: 18px; font-weight: bold; }
-        .btn-boot { background: var(--neon); color: #000; font-weight: 900; padding: 22px; border-radius: 12px; font-size: 16px; width: 100%; }
-        .pnl { font-size: 16px; font-weight: bold; }
+        .dash { flex: 0 0 85%; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 2px solid var(--neon); }
+        .logs { flex: 1; background: #000; padding: 10px; font-size: 10px; overflow-y: auto; color: #58a6ff; border-top: 1px solid #30363d; }
+        .card { background: var(--card); border: 1px solid #30363d; border-radius: 10px; padding: 14px; }
+        .label-u { font-size: 10px; color: #8b949e; text-transform: uppercase; font-weight: 900; margin-bottom: 6px; display: block; }
+        input[type=range] { width: 100%; accent-color: var(--neon); height: 12px; cursor: pointer; }
+        input[type=number], input[type=password] { background: #000 !important; color: var(--neon) !important; border: 1px solid #30363d !important; padding: 10px; border-radius: 6px; font-size: 16px; font-weight: bold; }
+        .btn-boot { background: var(--neon); color: #000; font-weight: 900; padding: 20px; border-radius: 10px; font-size: 16px; width: 100%; box-shadow: 0 0 15px rgba(0,255,65,0.2); }
     </style>
 </head>
 <body>
@@ -30,53 +23,55 @@
 <div class="wrapper">
     <div class="dash">
         <div class="flex justify-between items-center px-1">
-            <span class="text-xs font-black">ORACLE v1.8 [GIANT-UI]</span>
-            <span id="tkn" class="text-white font-bold">TOKENS: 0</span>
+            <span class="text-xs font-black">VIBE-ORACLE v1.9</span>
+            <span id="tkn" class="text-white font-bold bg-gray-800 px-2 rounded">TOKENS: 0</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
             <div class="card text-center">
                 <span class="label-u">Budget Demo ($)</span>
-                <input type="number" id="budget" value="1000" onchange="l('Budget aggiornato')">
+                <input type="number" id="budget" value="1000" class="w-full">
             </div>
-            <div class="card text-center border-green-500">
-                <span class="label-u">BTC Live</span>
-                <span id="btc" class="text-2xl font-black tracking-tighter">---</span>
-            </div>
-        </div>
-
-        <div class="card grid grid-cols-3 gap-2 text-center">
-            <div><p class="label-u">PNL D</p><p id="pnl-d" class="pnl">+$0.0</p></div>
-            <div><p class="label-u">PNL M</p><p id="pnl-m" class="pnl">+$0.0</p></div>
-            <div><p class="label-u">PNL R</p><p id="pnl-r" class="pnl">+$0.0</p></div>
-        </div>
-
-        <div class="card space-y-6">
-            <span class="label-u">Wallet Allocation (Blindata 100%)</span>
-            <div>
-                <div class="flex justify-between text-sm font-bold mb-2"><span>Dutch Arb</span><span id="v-d">50%</span></div>
-                <input type="range" id="s-d" value="50" oninput="fix(this)">
-            </div>
-            <div>
-                <div class="flex justify-between text-sm font-bold mb-2"><span>Meteo</span><span id="v-m">30%</span></div>
-                <input type="range" id="s-m" value="30" oninput="fix(this)">
-            </div>
-            <div>
-                <div class="flex justify-between text-sm font-bold mb-2"><span>Rare Ops</span><span id="v-r">20%</span></div>
-                <input type="range" id="s-r" value="20" oninput="inputFix(this)">
+            <div class="card text-center border-green-500/50">
+                <span class="label-u">BTC Live Stream</span>
+                <span id="btc" class="text-2xl font-black tracking-tighter">LOADING</span>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <input type="password" id="key" placeholder="API KEY QUI" class="w-full">
-            <div class="flex gap-3">
-                <button id="m-btn" onclick="tMode()" class="w-1/4 bg-blue-900 font-bold rounded-xl">DEMO</button>
+        <div class="card grid grid-cols-3 gap-2 text-center py-2">
+            <div><p class="label-u">PNL D</p><p id="pnl-d" class="font-bold text-sm">+$0.0</p></div>
+            <div><p class="label-u">PNL M</p><p id="pnl-m" class="font-bold text-sm">+$0.0</p></div>
+            <div><p class="label-u">PNL R</p><p id="pnl-r" class="font-bold text-sm">+$0.0</p></div>
+        </div>
+
+        <div class="card space-y-4">
+            <span class="label-u">Wallet Allocation (Locked 100%)</span>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1"><span>Dutch Arb</span><span id="v-d">50%</span></div>
+                    <input type="range" id="s-d" min="0" max="100" value="50" oninput="magnetFix('d')">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1"><span>Meteo</span><span id="v-m">30%</span></div>
+                    <input type="range" id="s-m" min="0" max="100" value="30" oninput="magnetFix('m')">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1"><span>Rare Ops</span><span id="v-r">20%</span></div>
+                    <input type="range" id="s-r" min="0" max="100" value="20" oninput="magnetFix('r')">
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <input type="password" id="key" placeholder="INSERISCI GEMINI API KEY" class="w-full text-center">
+            <div class="flex gap-2">
+                <button id="m-btn" onclick="tMode()" class="w-1/4 bg-blue-900 font-bold rounded-lg text-[10px]">DEMO</button>
                 <button onclick="boot()" class="btn-boot uppercase">Inizializza Terminale</button>
             </div>
         </div>
     </div>
 
-    <div id="log" class="logs">> Pronto. WebSocket Binance Attivo.</div>
+    <div id="log" class="logs">> WebSocket Binance Attivo.<br>> Logica Magnetica caricata.</div>
 </div>
 
 <script>
@@ -88,28 +83,45 @@
         log.scrollTop = log.scrollHeight;
     }
 
-    // Normalizzazione Automatica Infallibile
-    function fix(el) {
-        let sd = document.getElementById('s-d');
-        let sm = document.getElementById('s-m');
-        let sr = document.getElementById('s-r');
+    // Logica Magnetica: Impedisce fisicamente di superare il 100%
+    function magnetFix(active) {
+        let d = document.getElementById('s-d');
+        let m = document.getElementById('s-m');
+        let r = document.getElementById('s-r');
         
-        let total = parseInt(sd.value) + parseInt(sm.value) + parseInt(sr.value);
+        let valD = parseInt(d.value);
+        let valM = parseInt(m.value);
+        let valR = parseInt(r.value);
         
-        if (total > 100) {
+        let total = valD + valM + valR;
+        
+        if (total !== 100) {
             let diff = total - 100;
-            if (el.id === 's-d') sm.value -= diff;
-            else if (el.id === 's-m') sr.value -= diff;
-            else sd.value -= diff;
-        } else if (total < 100) {
-            let diff = 100 - total;
-            if (el.id === 's-d') sm.value = parseInt(sm.value) + diff;
-            else sr.value = parseInt(sr.value) + diff;
+            if (active === 'd') {
+                // Sottrai proporzionalmente agli altri due
+                if (valM + valR > 0) {
+                    let mRatio = valM / (valM + valR);
+                    m.value = Math.max(0, valM - Math.round(diff * mRatio));
+                    r.value = Math.max(0, 100 - parseInt(d.value) - parseInt(m.value));
+                } else { m.value = 0; r.value = 0; d.value = 100; }
+            } else if (active === 'm') {
+                if (valD + valR > 0) {
+                    let dRatio = valD / (valD + valR);
+                    d.value = Math.max(0, valD - Math.round(diff * dRatio));
+                    r.value = Math.max(0, 100 - parseInt(d.value) - parseInt(m.value));
+                } else { d.value = 0; r.value = 0; m.value = 100; }
+            } else if (active === 'r') {
+                if (valD + valM > 0) {
+                    let dRatio = valD / (valD + valM);
+                    d.value = Math.max(0, valD - Math.round(diff * dRatio));
+                    m.value = Math.max(0, 100 - parseInt(d.value) - parseInt(r.value));
+                } else { d.value = 0; m.value = 0; r.value = 100; }
+            }
         }
         
-        document.getElementById('v-d').innerText = sd.value + '%';
-        document.getElementById('v-m').innerText = sm.value + '%';
-        document.getElementById('v-r').innerText = sr.value + '%';
+        document.getElementById('v-d').innerText = d.value + '%';
+        document.getElementById('v-m').innerText = m.value + '%';
+        document.getElementById('v-r').innerText = r.value + '%';
     }
 
     function tMode() {
@@ -132,25 +144,25 @@
         const k = document.getElementById('key').value.trim();
         if(!k) return alert("Inserisci API Key");
         
-        l("Tentativo Handshake...");
+        l("Handshake Gemini in corso...");
         try {
-            // Versione semplificata per evitare blocchi browser mobile
+            // URL Corretto per v1beta
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`;
             const resp = await fetch(url, {
                 method: 'POST',
-                body: JSON.stringify({ contents: [{ parts: [{ text: "Stato sistema: attivo. Rispondi 'OK'" }] }] })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: "System check. Response 'OK'." }] }] })
             });
             const d = await resp.json();
             
-            if(d.candidates) {
+            if(d.candidates && d.candidates[0].content) {
                 document.getElementById('tkn').innerText = "TOKENS: " + d.usageMetadata.totalTokenCount;
-                l("HANDSHAKE OK. Sistemi pronti.", "#00ff41");
+                l("CONNESSO: Oracolo pronto.", "#00ff41");
             } else {
-                l("ERRORE: " + (d.error?.message || "Risposta vuota"), "red");
+                l("ERRORE: " + (d.error?.message || "Chiave non valida"), "#ff4444");
             }
         } catch (e) { 
-            l("ERRORE CONNESSIONE: " + e.message, "red");
-            l("Suggerimento: Verifica che la VPN non blocchi Google.", "yellow");
+            l("ECCEZIONE: " + e.message, "#ff4444");
         }
     }
 
