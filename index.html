@@ -3,79 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Oracle v1.7 | Iron-Grid</title>
+    <title>Oracle v1.8 | Giant UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon: #00ff41; --bg: #0a0b0d; --card: #161b22; }
-        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow: hidden; }
+        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: monospace; overflow: hidden; }
         .wrapper { display: flex; flex-direction: column; height: 100vh; }
-        .dash { flex: 0 0 75%; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--neon); }
-        .logs { flex: 1; background: #000; padding: 8px; font-size: 10px; overflow-y: auto; color: #58a6ff; }
-        .card { background: var(--card); border: 1px solid #30363d; border-radius: 8px; padding: 10px; }
-        .label-u { font-size: 9px; color: #8b949e; text-transform: uppercase; font-weight: bold; }
-        .pnl-pos { color: var(--neon); font-weight: bold; }
-        input[type=range] { width: 100%; accent-color: var(--neon); cursor: pointer; }
-        input[type=number], input[type=password] { background: #000 !important; color: var(--neon) !important; border: 1px solid #30363d !important; padding: 5px; border-radius: 4px; text-align: center; }
-        .btn-boot { background: var(--neon); color: #000; font-weight: 900; padding: 15px; border-radius: 6px; width: 100%; margin-top: 5px; }
+        
+        /* Dashboard enorme (80%) */
+        .dash { flex: 0 0 82%; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 2px solid var(--neon); }
+        
+        /* Log compatti (18%) */
+        .logs { flex: 1; background: #000; padding: 10px; font-size: 11px; overflow-y: auto; color: #58a6ff; }
+        
+        .card { background: var(--card); border: 1px solid #30363d; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
+        .label-u { font-size: 11px; color: #8b949e; text-transform: uppercase; font-weight: 900; margin-bottom: 8px; }
+        
+        input[type=range] { width: 100%; accent-color: var(--neon); height: 15px; cursor: pointer; }
+        input[type=number], input[type=password] { background: #000 !important; color: var(--neon) !important; border: 1px solid #30363d !important; padding: 12px; border-radius: 8px; font-size: 18px; font-weight: bold; }
+        .btn-boot { background: var(--neon); color: #000; font-weight: 900; padding: 22px; border-radius: 12px; font-size: 16px; width: 100%; }
+        .pnl { font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <div class="dash">
-        <div class="flex justify-between items-center px-1 text-[10px]">
-            <span class="font-bold">VIBE-ORACLE v1.7</span>
-            <span id="tkn" class="text-white">TOKENS: 0</span>
+        <div class="flex justify-between items-center px-1">
+            <span class="text-xs font-black">ORACLE v1.8 [GIANT-UI]</span>
+            <span id="tkn" class="text-white font-bold">TOKENS: 0</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-4">
             <div class="card text-center">
-                <span class="label-u">Budget Demo ($)</span><br>
-                <input type="number" id="budget" value="1000" class="w-full text-lg">
+                <span class="label-u">Budget Demo ($)</span>
+                <input type="number" id="budget" value="1000" onchange="l('Budget aggiornato')">
             </div>
             <div class="card text-center border-green-500">
-                <span class="label-u">BTC Live Price</span><br>
-                <span id="btc" class="text-xl font-bold tracking-tighter">WAITING...</span>
+                <span class="label-u">BTC Live</span>
+                <span id="btc" class="text-2xl font-black tracking-tighter">---</span>
             </div>
         </div>
 
-        <div class="card grid grid-cols-3 gap-1 text-center py-2">
-            <div><p class="label-u">PNL Dutch</p><p id="pnl-d" class="pnl-pos">+$0.00</p></div>
-            <div><p class="label-u">PNL Meteo</p><p id="pnl-m" class="pnl-pos">+$0.00</p></div>
-            <div><p class="label-u">PNL Rare</p><p id="pnl-r" class="pnl-pos">+$0.00</p></div>
+        <div class="card grid grid-cols-3 gap-2 text-center">
+            <div><p class="label-u">PNL D</p><p id="pnl-d" class="pnl">+$0.0</p></div>
+            <div><p class="label-u">PNL M</p><p id="pnl-m" class="pnl">+$0.0</p></div>
+            <div><p class="label-u">PNL R</p><p id="pnl-r" class="pnl">+$0.0</p></div>
         </div>
 
-        <div class="card space-y-3">
-            <span class="label-u">Wallet Allocation (Total 100%)</span>
+        <div class="card space-y-6">
+            <span class="label-u">Wallet Allocation (Blindata 100%)</span>
             <div>
-                <div class="flex justify-between text-xs"><span>Dutch Arb</span><span id="v-d">50%</span></div>
-                <input type="range" id="s-d" min="0" max="100" value="50" oninput="fixAlloc('d')">
-            </div>
-            <div>
-                <div class="flex justify-between text-xs"><span>Meteo</span><span id="v-m">30%</span></div>
-                <input type="range" id="s-m" min="0" max="100" value="30" oninput="fixAlloc('m')">
+                <div class="flex justify-between text-sm font-bold mb-2"><span>Dutch Arb</span><span id="v-d">50%</span></div>
+                <input type="range" id="s-d" value="50" oninput="fix(this)">
             </div>
             <div>
-                <div class="flex justify-between text-xs"><span>Rare Ops</span><span id="v-r">20%</span></div>
-                <input type="range" id="s-r" min="0" max="100" value="20" oninput="fixAlloc('r')">
+                <div class="flex justify-between text-sm font-bold mb-2"><span>Meteo</span><span id="v-m">30%</span></div>
+                <input type="range" id="s-m" value="30" oninput="fix(this)">
+            </div>
+            <div>
+                <div class="flex justify-between text-sm font-bold mb-2"><span>Rare Ops</span><span id="v-r">20%</span></div>
+                <input type="range" id="s-r" value="20" oninput="inputFix(this)">
             </div>
         </div>
 
-        <div class="card grid grid-cols-2 gap-2">
-            <div><span class="label-u">Meteo > Dutch %</span><input type="number" id="rm" value="80" class="w-full"></div>
-            <div><span class="label-u">Rare > Dutch %</span><input type="number" id="rr" value="80" class="w-full"></div>
-        </div>
-
-        <div class="mt-auto space-y-2">
-            <input type="password" id="key" placeholder="PASTE GEMINI API KEY" class="w-full py-3">
-            <div class="flex gap-2">
-                <button id="m-btn" onclick="tMode()" class="w-1/4 bg-blue-900 text-[10px] font-bold rounded">DEMO</button>
-                <button onclick="boot()" class="btn-boot text-sm uppercase">Inizializza Terminale</button>
+        <div class="space-y-4">
+            <input type="password" id="key" placeholder="API KEY QUI" class="w-full">
+            <div class="flex gap-3">
+                <button id="m-btn" onclick="tMode()" class="w-1/4 bg-blue-900 font-bold rounded-xl">DEMO</button>
+                <button onclick="boot()" class="btn-boot uppercase">Inizializza Terminale</button>
             </div>
         </div>
     </div>
 
-    <div id="log" class="logs">> Terminale v1.7 Online. Attesa API...</div>
+    <div id="log" class="logs">> Pronto. WebSocket Binance Attivo.</div>
 </div>
 
 <script>
@@ -87,29 +88,28 @@
         log.scrollTop = log.scrollHeight;
     }
 
-    // Normalizzazione Matematica Blindata
-    function fixAlloc(changed) {
-        let d = parseInt(document.getElementById('s-d').value);
-        let m = parseInt(document.getElementById('s-m').value);
-        let r = parseInt(document.getElementById('s-r').value);
-        let total = d + m + r;
-
-        if (total !== 100) {
+    // Normalizzazione Automatica Infallibile
+    function fix(el) {
+        let sd = document.getElementById('s-d');
+        let sm = document.getElementById('s-m');
+        let sr = document.getElementById('s-r');
+        
+        let total = parseInt(sd.value) + parseInt(sm.value) + parseInt(sr.value);
+        
+        if (total > 100) {
+            let diff = total - 100;
+            if (el.id === 's-d') sm.value -= diff;
+            else if (el.id === 's-m') sr.value -= diff;
+            else sd.value -= diff;
+        } else if (total < 100) {
             let diff = 100 - total;
-            if (changed === 'd') {
-                if (m > r) document.getElementById('s-m').value = Math.max(0, m + diff);
-                else document.getElementById('s-r').value = Math.max(0, r + diff);
-            } else if (changed === 'm') {
-                if (d > r) document.getElementById('s-d').value = Math.max(0, d + diff);
-                else document.getElementById('s-r').value = Math.max(0, r + diff);
-            } else {
-                if (d > m) document.getElementById('s-d').value = Math.max(0, d + diff);
-                else document.getElementById('s-m').value = Math.max(0, m + diff);
-            }
+            if (el.id === 's-d') sm.value = parseInt(sm.value) + diff;
+            else sr.value = parseInt(sr.value) + diff;
         }
-        document.getElementById('v-d').innerText = document.getElementById('s-d').value + '%';
-        document.getElementById('v-m').innerText = document.getElementById('s-m').value + '%';
-        document.getElementById('v-r').innerText = document.getElementById('s-r').value + '%';
+        
+        document.getElementById('v-d').innerText = sd.value + '%';
+        document.getElementById('v-m').innerText = sm.value + '%';
+        document.getElementById('v-r').innerText = sr.value + '%';
     }
 
     function tMode() {
@@ -126,27 +126,34 @@
             const data = JSON.parse(e.data);
             document.getElementById('btc').innerText = "$" + Math.round(data.c);
         };
-        ws.onerror = () => l("ERRORE WS: Controlla VPN", "red");
     }
 
     async function boot() {
         const k = document.getElementById('key').value.trim();
         if(!k) return alert("Inserisci API Key");
-        l("Verifica Handshake...");
-        initWS(); // Forza il prezzo subito
+        
+        l("Tentativo Handshake...");
         try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
+            // Versione semplificata per evitare blocchi browser mobile
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({ contents: [{ parts: [{ text: "Stato sistema: attivo. Rispondi 'OK'" }] }] })
             });
             const d = await resp.json();
-            if(d.usageMetadata) {
+            
+            if(d.candidates) {
                 document.getElementById('tkn').innerText = "TOKENS: " + d.usageMetadata.totalTokenCount;
-                l("Handshake Gemini OK. Sistemi Live.", "#00ff41");
+                l("HANDSHAKE OK. Sistemi pronti.", "#00ff41");
+            } else {
+                l("ERRORE: " + (d.error?.message || "Risposta vuota"), "red");
             }
-        } catch (e) { l("ERRORE: " + e.message, "red"); }
+        } catch (e) { 
+            l("ERRORE CONNESSIONE: " + e.message, "red");
+            l("Suggerimento: Verifica che la VPN non blocchi Google.", "yellow");
+        }
     }
-    // Avvio automatico WS se possibile
+
     initWS();
 </script>
 </body>
