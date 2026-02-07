@@ -2,64 +2,82 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ORACLE v3.0 | APEX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ORACLE v4.0 | TERMINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .panel { background: #0f1115; border: 1px solid #1e293b; border-radius: 4px; padding: 10px; position: relative; }
-        .pnl-row { grid-column: span 2; display: flex; justify-content: space-around; background: #0a0c10; padding: 10px; border: 1px solid #1e293b; }
-        .label { color: #64748b; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .val { font-size: 22px; font-weight: 900; color: #fff; }
-        .btc-val { color: #00ff41; font-size: 28px; }
+        body, html { height: 100%; margin: 0; background: #000; color: #00ff41; font-family: monospace; overflow: hidden; }
+        .wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
-        input[type=range] { width: 100%; accent-color: #00ff41; cursor: pointer; height: 6px; }
-        input[type=password], input[type=number] { background: #000; color: #00ff41; border: 1px solid #334155; border-radius: 2px; padding: 5px; width: 100%; text-align: center; }
+        /* Header & Data */
+        .top-bar { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #1e293b; height: 80px; }
+        .stat-box { display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #1e293b; background: #0a0b0d; }
+        .label { font-size: 10px; color: #64748b; text-transform: uppercase; }
+        .val { font-size: 24px; font-weight: bold; color: #fff; }
+
+        /* PNL Section */
+        .pnl-strip { display: flex; justify-content: space-around; background: #0f1115; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+        .pnl-item { text-align: center; }
+        .pnl-val { font-size: 14px; font-weight: bold; }
+
+        /* Allocation - Flex grow per coprire lo schermo */
+        .allocation-area { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+        .slide-group { width: 100%; }
+        input[type=range] { width: 100%; height: 12px; accent-color: #00ff41; background: #1e293b; border-radius: 5px; appearance: none; }
+
+        /* Bottom Control & Log */
+        .bottom-ctrl { background: #0a0b0d; border-top: 1px solid #1e293b; padding: 15px; }
+        input[type=password] { background: #000; border: 1px solid #334155; color: #00ff41; width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 4px; font-size: 16px; }
+        .btn-init { background: #00ff41; color: #000; font-weight: 900; width: 100%; padding: 15px; border-radius: 4px; font-size: 18px; }
         
-        .footer-ctrl { padding: 10px; display: flex; flex-direction: column; gap: 8px; background: #0a0c10; border-top: 1px solid #1e293b; }
-        .btn-run { background: #00ff41; color: #000; font-weight: 900; padding: 12px; border-radius: 4px; text-transform: uppercase; width: 100%; transition: 0.2s; }
-        .btn-run:active { background: #00cc33; transform: scale(0.98); }
-        
-        #log { height: 80px; overflow-y: auto; font-size: 9px; color: #58a6ff; padding: 5px; background: #000; border: 1px solid #1e293b; margin-top: 5px; }
-        .token-badge { position: absolute; top: 5px; right: 5px; font-size: 9px; background: #991b1b; color: white; padding: 2px 6px; border-radius: 10px; }
+        #log { height: 100px; background: #000; font-size: 11px; padding: 10px; overflow-y: auto; color: #58a6ff; border-top: 1px solid #1e293b; }
+        .tkn-badge { position: absolute; top: 5px; right: 10px; font-size: 10px; color: #991b1b; }
     </style>
 </head>
 <body>
 
-<div class="grid-main">
-    <div class="panel">
-        <span class="label">BUDGET DEMO</span>
-        <input type="number" id="budget" value="1000">
-    </div>
-    <div class="panel">
-        <span class="label">BTC/USDT LIVE</span>
-        <div id="btc" class="val btc-val">---</div>
-    </div>
-    
-    <div class="pnl-row">
-        <div class="text-center"><span class="label">PNL D</span><div id="pnl-d" class="val text-sm">+$0</div></div>
-        <div class="text-center"><span class="label">PNL M</span><div id="pnl-m" class="val text-sm">+$0</div></div>
-        <div class="text-center"><span class="label">PNL R</span><div id="pnl-r" class="val text-sm">+$0</div></div>
-    </div>
-
-    <div class="panel grid-column span 2" style="grid-column: span 2;">
-        <span class="label">RISK ALLOCATION (100%)</span>
-        <div class="flex flex-col gap-3 mt-2">
-            <div><div class="flex justify-between text-[10px]"><span>DUTCH</span><span id="v-d">50%</span></div><input type="range" id="s-d" oninput="balance('d')"></div>
-            <div><div class="flex justify-between text-[10px]"><span>METEO</span><span id="v-m">30%</span></div><input type="range" id="s-m" oninput="balance('m')"></div>
-            <div><div class="flex justify-between text-[10px]"><span>RARE</span><span id="v-r">20%</span></div><input type="range" id="s-r" oninput="balance('r')"></div>
+<div class="wrapper">
+    <div class="top-bar">
+        <div class="stat-box">
+            <span class="label">BUDGET DEMO</span>
+            <input type="number" id="budget" value="1000" class="bg-transparent text-white text-center text-xl font-bold border-none outline-none">
+        </div>
+        <div class="stat-box">
+            <span class="label">BTC LIVE</span>
+            <span id="btc" class="val text-green-400">---</span>
         </div>
     </div>
-</div>
 
-<div class="footer-ctrl">
-    <div class="relative">
-        <input type="password" id="key" placeholder="API KEY GEMINI">
-        <span id="tkn" class="token-badge">TKN: 0</span>
+    <div class="pnl-strip">
+        <div class="pnl-item"><span class="label">PNL DUTCH</span><div id="pnl-d" class="pnl-val text-white">+$0.00</div></div>
+        <div class="pnl-item"><span class="label">PNL METEO</span><div id="pnl-m" class="pnl-val text-white">+$0.00</div></div>
+        <div class="pnl-item"><span class="label">PNL RARE</span><div id="pnl-r" class="pnl-val text-white">+$0.00</div></div>
     </div>
-    <button onclick="boot()" class="btn-run">INITIALIZE ORACLE v3.0</button>
-    <div id="log">> System Offline. Waiting for Key...</div>
+
+    <div class="allocation-area">
+        <div class="slide-group">
+            <div class="flex justify-between mb-2"><span class="label">DUTCH ARB</span><span id="v-d" class="text-white">50%</span></div>
+            <input type="range" id="s-d" min="0" max="100" value="50" oninput="balance('d')">
+        </div>
+        <div class="slide-group">
+            <div class="flex justify-between mb-2"><span class="label">METEO OPS</span><span id="v-m" class="text-white">30%</span></div>
+            <input type="range" id="s-m" min="0" max="100" value="30" oninput="balance('m')">
+        </div>
+        <div class="slide-group">
+            <div class="flex justify-between mb-2"><span class="label">RARE OPS</span><span id="v-r" class="text-white">20%</span></div>
+            <input type="range" id="s-r" min="0" max="100" value="20" oninput="balance('r')">
+        </div>
+    </div>
+
+    <div class="bottom-ctrl">
+        <div class="relative">
+            <input type="password" id="key" placeholder="PASTE API KEY">
+            <span id="tkn" class="tkn-badge font-bold">TOKENS: 0</span>
+        </div>
+        <button onclick="boot()" class="btn-init">INITIALIZE ORACLE v4.0</button>
+    </div>
+
+    <div id="log">> SYSTEM READY. Awaiting Handshake...</div>
 </div>
 
 <script>
@@ -83,37 +101,39 @@
 
     async function boot() {
         const key = document.getElementById('key').value.trim();
-        if(!key) return l("MISSING KEY", "red");
+        if(!key) return l("ERROR: NO KEY", "red");
         
-        l("INITIATING MULTI-PHASE SCAN...");
+        l("FORCING HANDSHAKE PROTOCOL...");
         
-        // La lista definitiva di modelli che Google DEVE accettare
-        const endpoints = [
-            {v: 'v1beta', m: 'gemini-1.5-flash-8b'}, 
-            {v: 'v1beta', m: 'gemini-1.5-flash'},
-            {v: 'v1', m: 'gemini-1.5-flash'},
-            {v: 'v1beta', m: 'gemini-pro'}
+        // Elenco modelli aggiornato al 2024/2025 per bypassare il NOT_FOUND
+        const models = [
+            'gemini-1.5-flash',
+            'gemini-1.5-flash-8b',
+            'gemini-2.0-flash-exp',
+            'gemini-pro'
         ];
 
-        for(let ep of endpoints) {
+        for(let m of models) {
             try {
-                l(`CHECKING ${ep.m}...`);
-                const r = await fetch(`https://generativelanguage.googleapis.com/${ep.v}/models/${ep.m}:generateContent?key=${key}`, {
+                l(`TENTATIVO: ${m}...`);
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({contents:[{parts:[{text:"ok"}]}]})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "ping" }] }] })
                 });
                 const data = await r.json();
+
                 if(data.candidates) {
-                    document.getElementById('tkn').innerText = "TKN: " + data.usageMetadata.totalTokenCount;
-                    document.getElementById('tkn').style.background = "#16a34a";
-                    l(`STABLE CONNECTION: ${ep.m}`, "#00ff41");
+                    l(`CONNECTED: ${m.toUpperCase()}`, "#00ff41");
+                    document.getElementById('tkn').innerText = "TOKENS: " + data.usageMetadata.totalTokenCount;
+                    document.getElementById('tkn').style.color = "#00ff41";
                     return;
+                } else {
+                    l(`FAIL: ${data.error?.status || "REJECTED"}`, "orange");
                 }
-                l(`REJECTED: ${ep.m}`, "orange");
-            } catch(e) { l("NET FAIL", "red"); }
+            } catch(e) { l("NETWORK ERROR", "red"); }
         }
-        l("CRITICAL ERROR: ALL MODELS NOT FOUND. CHECK API KEY PERMISSIONS.", "red");
+        l("CRITICAL: ALL MODELS FAILED. API KEY RESTRICTED BY GOOGLE.", "red");
     }
 
     (function connect() {
