@@ -2,103 +2,99 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Oracle v2.3 | Horizon Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Oracle v2.4 | Glass-Box</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --neon: #00ff41; --bg: #000; }
-        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: 'Impact', sans-serif; overflow: hidden; }
+        body, html { height: 100vh; margin: 0; background: var(--bg); color: var(--neon); font-family: 'Impact', sans-serif; overflow-x: hidden; }
         
-        /* Layout adattivo per rotazione */
-        .main-grid {
+        .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            padding: 5px;
-            gap: 4px;
+            padding: 10px;
+            gap: 8px;
         }
 
-        .section { 
-            background: #0a0b0d; 
-            border: 2px solid #1e293b; 
-            border-radius: 8px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            min-height: 50px;
-        }
-
-        /* Testo scalabile */
-        .label { font-size: 2.5vw; color: #64748b; text-transform: uppercase; }
-        .big-val { font-size: 9vw; line-height: 1; }
-        .mid-val { font-size: 5vw; line-height: 1; color: var(--neon); }
+        .section { background: #0a0b0d; border: 2px solid #1e293b; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        input[type=range] { width: 95%; accent-color: var(--neon); height: 25px; }
-        input[type=number], input[type=password] { 
-            background: transparent !important; color: var(--neon) !important; 
-            border: none !important; font-size: 7vw; text-align: center; width: 100%; font-weight: 900;
-        }
+        /* Font dinamici migliorati */
+        .label { font-size: clamp(10px, 3vw, 16px); color: #64748b; text-transform: uppercase; }
+        .val-giant { font-size: clamp(24px, 10vw, 48px); font-weight: 900; }
         
-        .btn-go { background: var(--neon); color: #000; font-weight: 900; width: 100%; border-radius: 8px; font-size: 5vw; height: 100%; }
-        .log-area { flex-grow: 1; background: #000; font-size: 2.5vw; overflow-y: auto; padding: 6px; font-family: monospace; color: #58a6ff; border: 1px solid #1e293b; min-height: 80px; }
-
-        @media (orientation: landscape) {
-            .big-val { font-size: 5vh; }
-            .mid-val { font-size: 3vh; }
-            .label { font-size: 2vh; }
+        input[type=range] { width: 100%; accent-color: var(--neon); height: 20px; margin: 10px 0; }
+        input[type=password], input[type=number] { background: transparent; color: var(--neon); border: none; text-align: center; font-size: 6vw; width: 100%; font-family: monospace; }
+        
+        /* Area Log che respira */
+        .log-container {
+            flex-grow: 1;
+            min-height: 120px;
+            background: #000;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #58a6ff;
+            display: flex;
+            flex-direction: column;
         }
+
+        .btn-go { background: var(--neon); color: #000; font-weight: 900; font-size: 20px; border-radius: 8px; width: 100%; height: 100%; transition: scale 0.1s; }
+        .btn-go:active { scale: 0.95; }
     </style>
 </head>
 <body>
 
-<div class="main-grid">
-    <div class="flex justify-between items-center px-1" style="height: 5%;">
-        <span style="font-size: 2.5vw;">ORACLE v2.3</span>
-        <span id="tkn" class="text-white bg-red-600 px-2 rounded font-bold" style="font-size: 2.5vw;">TOKENS: 0</span>
+<div class="container">
+    <div class="flex justify-between items-center px-1">
+        <span class="label" style="color:var(--neon)">VIBE-ORACLE v2.4</span>
+        <span id="tkn" class="bg-red-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">TOKENS: 0</span>
     </div>
 
-    <div class="grid grid-cols-2 gap-2" style="height: 18%;">
+    <div class="grid grid-cols-2 gap-2">
         <div class="section border-blue-900">
-            <span class="label">BUDGET DEMO</span>
+            <span class="label">Budget Demo</span>
             <input type="number" id="budget" value="1000">
         </div>
         <div class="section border-green-500">
-            <span class="label">BTC LIVE</span>
-            <span id="btc" class="big-val">---</span>
+            <span class="label">BTC/USDT Live</span>
+            <span id="btc" class="val-giant">---</span>
         </div>
     </div>
 
-    <div class="section grid grid-cols-3 w-full" style="height: 10%;">
-        <div class="text-center"><p class="label">PNL D</p><p id="pnl-d" class="mid-val">+$0</p></div>
-        <div class="text-center"><p class="label">PNL M</p><p id="pnl-m" class="mid-val">+$0</p></div>
-        <div class="text-center"><p class="label">PNL R</p><p id="pnl-r" class="mid-val">+$0</p></div>
+    <div class="section grid grid-cols-3 gap-1">
+        <div class="text-center"><p class="label">PNL D</p><p id="pnl-d" class="text-xl font-bold">+$0</p></div>
+        <div class="text-center"><p class="label">PNL M</p><p id="pnl-m" class="text-xl font-bold">+$0</p></div>
+        <div class="text-center"><p class="label">PNL R</p><p id="pnl-r" class="text-xl font-bold">+$0</p></div>
     </div>
 
-    <div class="section p-2" style="height: 35%;">
-        <span class="label">WALLET CONTROL (100%)</span>
-        <div class="w-full space-y-1">
-            <div class="flex justify-between items-center"><span class="label">DUTCH</span><b id="v-d" style="font-size:4vw;">50%</b></div>
-            <input type="range" id="s-d" value="50" oninput="balance('d')">
-            <div class="flex justify-between items-center"><span class="label">METEO</span><b id="v-m" style="font-size:4vw;">30%</b></div>
-            <input type="range" id="s-m" value="30" oninput="balance('m')">
-            <div class="flex justify-between items-center"><span class="label">RARE</span><b id="v-r" style="font-size:4vw;">20%</b></div>
-            <input type="range" id="s-r" value="20" oninput="balance('r')">
+    <div class="section">
+        <span class="label">Risk Allocation (100%)</span>
+        <div class="w-full px-2">
+            <div class="flex justify-between mt-2"><span class="text-xs">DUTCH</span><b id="v-d">50%</b></div>
+            <input type="range" id="s-d" min="0" max="100" value="50" oninput="balance('d')">
+            <div class="flex justify-between"><span class="text-xs">METEO</span><b id="v-m">30%</b></div>
+            <input type="range" id="s-m" min="0" max="100" value="30" oninput="balance('m')">
+            <div class="flex justify-between"><span class="text-xs">RARE</span><b id="v-r">20%</b></div>
+            <input type="range" id="s-r" min="0" max="100" value="20" oninput="balance('r')">
         </div>
     </div>
 
-    <div class="grid grid-cols-4 gap-2" style="height: 12%;">
+    <div class="grid grid-cols-4 gap-2 h-16">
         <div class="col-span-3 section">
-            <input type="password" id="key" placeholder="API KEY HERE" style="font-size: 3.5vw;">
+            <input type="password" id="key" placeholder="PASTE API KEY" class="placeholder-gray-700">
         </div>
         <div class="col-span-1">
-            <button onclick="boot()" class="btn-go">GO</button>
+            <button onclick="boot()" class="btn-go">INIT</button>
         </div>
     </div>
 
-    <div id="log" class="log-area">
-        > System Standby.<br>
-        > Enter API Key for Oracle Handshake.
+    <div id="log" class="log-container">
+        <div style="color:var(--neon)">> Kernel v2.4 Online.</div>
+        <div>> System ready for handshake...</div>
     </div>
 </div>
 
@@ -107,7 +103,10 @@
 
     function l(msg, col='') {
         const log = document.getElementById('log');
-        log.innerHTML += `<div style="color:${col}">> ${msg}</div>`;
+        const entry = document.createElement('div');
+        entry.style.color = col;
+        entry.innerHTML = `> ${msg}`;
+        log.appendChild(entry);
         log.scrollTop = log.scrollHeight;
     }
 
@@ -125,34 +124,38 @@
 
     async function boot() {
         const key = document.getElementById('key').value.trim();
-        if(!key) return l("Missing Key", "red");
+        if(!key) return l("Error: Missing Key", "red");
         
-        l("Smart Handshake v2.3...");
+        l("Starting Handshake Sequence...");
         
-        // Array di tentativi con formati diversi per forzare la connessione
-        const trials = [
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`
+        const models = [
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
         ];
+        const versions = ["v1beta", "v1"];
 
-        for(let url of trials) {
-            try {
-                const r = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({contents: [{parts: [{text: "Handshake"}]}]})
-                });
-                const d = await r.json();
-                if(d.candidates) {
-                    document.getElementById('tkn').innerText = "TOKENS: " + d.usageMetadata.totalTokenCount;
-                    document.getElementById('tkn').style.backgroundColor = "#16a34a";
-                    l("HANDSHAKE SUCCESSFUL: " + url.split('/')[3], "#00ff41");
-                    return;
-                } else { l("Skip: " + url.split('/')[3], "orange"); }
-            } catch (e) { l("Network Blocked", "red"); }
+        for(let v of versions) {
+            for(let m of models) {
+                const url = `https://generativelanguage.googleapis.com/${v}/models/${m}:generateContent?key=${key}`;
+                try {
+                    l(`Attempting: ${v}/${m}...`);
+                    const r = await fetch(url, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({contents: [{parts: [{text: "Hi"}]}]})
+                    });
+                    const d = await r.json();
+                    if(d.candidates) {
+                        document.getElementById('tkn').innerText = "TOKENS: " + d.usageMetadata.totalTokenCount;
+                        document.getElementById('tkn').className = "bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg";
+                        l(`SUCCESS! Model ${m} online via ${v}`, "#00ff41");
+                        return;
+                    } else {
+                        l(`Fail: ${d.error?.status || "Unknown"}`, "orange");
+                    }
+                } catch (e) { l(`Critical: ${e.message}`, "red"); }
+            }
         }
-        l("CRITICAL: All endpoints failed.", "red");
     }
 
     (function connect() {
